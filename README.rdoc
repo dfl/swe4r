@@ -20,7 +20,9 @@ The following functions of the {Swiss Ephemeris API}[http://www.astro.com/swisse
 {swe_set_topo}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735476] :: Set the geographic location for topocentric planet computation
 {swe_set_sid_mode}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735478] :: This function can be used to specify the mode for sidereal computations
 {swe_get_ayanamsa}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735479] :: This function computes the ayanamsha, the distance of the tropical vernal point from the sidereal zero point of the zodiac
-
+{swe_azalt}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948998] :: This function computes the horizontal coordinates (azimuth and altitude) of a planet or a star from either ecliptical or equatorial coordinates.
+{swe_cotrans}[https://www.astro.com/swisseph/swephprg.htm#_Toc112949076] :: This function computes coordinate transformation, from ecliptic to equator or vice-versa.
+{swe_house_pos}[https://www.astro.com/swisseph/swephprg.htm#_Toc112949027] :: This function computes the house position of a given body for a given ARMC (right ascension of the MC).
 	
 == Examples
 The following example demonstrates how to calculate the position of a celestial body such as a planet using the  _swe_calc_ut_ function
