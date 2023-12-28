@@ -480,6 +480,46 @@ static VALUE t_swe_house_pos( VALUE self, VALUE armc, VALUE geolat, VALUE eps, V
 	return output;
 }
 
+static VALUE t_swe_solcross( VALUE self, VALUE x2cross, VALUE tjd_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+
+	double retval = swe_solcross(NUM2DBL(x2cross), NUM2DBL(tjd_et), NUM2INT(iflag), serr);
+	if (retval < tjd_et)
+		rb_raise(rb_eRuntimeError, serr);
+	return rb_float_new(retval);
+}
+
+static VALUE t_swe_solcross_ut( VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+
+	double retval = swe_solcross_ut(NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), serr);
+	if (retval < tjd_ut)
+		rb_raise(rb_eRuntimeError, serr);
+	return rb_float_new(retval);
+}
+
+static VALUE t_swe_mooncross( VALUE self, VALUE x2cross, VALUE tjd_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+
+	double retval = swe_mooncross(NUM2DBL(x2cross), NUM2DBL(tjd_et), NUM2INT(iflag), serr);
+	if (retval < tjd_et)
+		rb_raise(rb_eRuntimeError, serr);
+	return rb_float_new(retval);
+}
+
+static VALUE t_swe_mooncross_ut( VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+
+	double retval = swe_mooncross_ut(NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), serr);
+	if (retval < tjd_ut)
+		rb_raise(rb_eRuntimeError, serr);
+	return rb_float_new(retval);
+}
+
 void Init_swe4r()
 {
 	// Module
@@ -502,6 +542,14 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_azalt", t_swe_azalt, 10);
 	rb_define_module_function(rb_mSwe4r, "swe_cotrans", t_swe_cotrans, -1);
 	rb_define_module_function(rb_mSwe4r, "swe_house_pos", t_swe_house_pos, 6);
+	rb_define_module_function(rb_mSwe4r, "swe_solcross", t_swe_solcross, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_solcross_ut", t_swe_solcross_ut, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_mooncross", t_swe_mooncross, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_mooncross_ut", t_swe_mooncross_ut, 3);
+	// rb_define_module_function(rb_mSwe4r, "swe_mooncross_node", t_swe_mooncross_node, 4);
+	// rb_define_module_function(rb_mSwe4r, "swe_mooncross_node_ut", t_swe_mooncross_node_ut, 4);
+	// rb_define_module_function(rb_mSwe4r, "swe_helio_cross", t_swe_helio_cross, 4);
+	// rb_define_module_function(rb_mSwe4r, "swe_helio_cross_ut", t_swe_helio_cross_ut, 4);
 
 	// Constants
 
