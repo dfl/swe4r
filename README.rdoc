@@ -14,6 +14,7 @@ Install the gem as usual:
 The following functions of the {Swiss Ephemeris API}[http://www.astro.com/swisseph/] are supported...
 
 {swe_calc_ut}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735419] :: Calculation of planets, moon, asteroids, lunar nodes, apogees, fictitious bodies
+{swe_calc_pctr}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948958]
 {swe_houses}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735486] :: This function computes house cusps, ascendant, midheaven, etc
 {swe_set_ephe_path}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735481] :: Set directory path of ephemeris files (not required for Moshier Ephemeris)
 {swe_julday}[http://www.astro.com/swisseph/swephprg.htm#_Toc283735468] :: Get the Julian day number from year, month, day, hour
@@ -23,10 +24,10 @@ The following functions of the {Swiss Ephemeris API}[http://www.astro.com/swisse
 {swe_azalt}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948998] :: This function computes the horizontal coordinates (azimuth and altitude) of a planet or a star from either ecliptical or equatorial coordinates.
 {swe_cotrans}[https://www.astro.com/swisseph/swephprg.htm#_Toc112949076] :: This function computes coordinate transformation, from ecliptic to equator or vice-versa.
 {swe_house_pos}[https://www.astro.com/swisseph/swephprg.htm#_Toc112949027] :: This function computes the house position of a given body for a given ARMC (right ascension of the MC).
-{swe_solcross}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973] :: These functions find the crossing of the Sun over a given ecliptic position
 {swe_solcross_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973]
-{swe_mooncross}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973] :: These functions find the crossing of the Moon over a given ecliptic position
 {swe_mooncross_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973]
+{swe_helio_cross_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973]
+{swe_nod_aps_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948980]
 
 == Examples
 The following example demonstrates how to calculate the position of a celestial body such as a planet using the  _swe_calc_ut_ function
