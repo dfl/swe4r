@@ -19,9 +19,8 @@ You should have received a copy of the GNU General Public License
 along with Swe4r.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 // https://docs.ruby-lang.org/en/3.0/extension_rdoc.html
-#include <ruby.h> 
+#include <ruby.h>
 #include "swephexp.h"
 
 // Module Name
@@ -60,7 +59,8 @@ static VALUE t_swe_set_jpl_file(VALUE self, VALUE path)
 		int gregflag	// Gregorian calendar: 1, Julian calendar: 0
 	);
  */
-static VALUE t_swe_julday(int argc, VALUE *argv, VALUE self) {
+static VALUE t_swe_julday(int argc, VALUE *argv, VALUE self)
+{
 	VALUE greg_flag;
 
 	if (argc > 5 || argc < 4)
@@ -69,7 +69,7 @@ static VALUE t_swe_julday(int argc, VALUE *argv, VALUE self) {
 	}
 	greg_flag = (argc == 5) ? NUM2INT(argv[4]) : SE_GREG_CAL;
 
-	double julday = swe_julday(NUM2INT(argv[0]), NUM2INT(argv[1]), NUM2INT(argv[2]), NUM2DBL(argv[3]), greg_flag );
+	double julday = swe_julday(NUM2INT(argv[0]), NUM2INT(argv[1]), NUM2INT(argv[2]), NUM2DBL(argv[3]), greg_flag);
 	return rb_float_new(julday);
 }
 /*
@@ -84,7 +84,8 @@ static VALUE t_swe_julday(int argc, VALUE *argv, VALUE self) {
 		double *hour
 	);
 */
-static VALUE t_swe_revjul(int argc, VALUE *argv, VALUE self) {
+static VALUE t_swe_revjul(int argc, VALUE *argv, VALUE self)
+{
 	if (argc > 2 || argc < 1)
 	{ // there should only be 2 or 3 arguments
 		rb_raise(rb_eArgError, "wrong number of arguments");
@@ -146,6 +147,12 @@ static VALUE t_swe_calc_ut(VALUE self, VALUE julian_ut, VALUE body, VALUE iflag)
 	return output;
 }
 
+static VALUE t_swe_sidtime(VALUE self, VALUE julian_ut)
+{
+	double sidtime = swe_sidtime(NUM2DBL(julian_ut));
+	return rb_float_new(sidtime);
+}
+
 /*
  * This function can be used to specify the mode for sidereal computations
  * http://www.astro.com/swisseph/swephprg.htm#_Toc283735478
@@ -175,7 +182,6 @@ static VALUE t_swe_get_ayanamsa_ut(VALUE self, VALUE julian_ut)
 	return rb_float_new(ayanamsa);
 }
 
-
 // * This function computes the ayanamsha using a Delta T consistent with the ephe_flag specified.
 // * https://www.astro.com/swisseph/swephprg.htm#_Toc112949018
 // * input variables:
@@ -188,7 +194,7 @@ static VALUE t_swe_get_ayanamsa_ut(VALUE self, VALUE julian_ut)
 // * serr = error message or warning (pointer to string)
 // * The function returns either the ephemeris flag used or ERR (-1)
 
-static VALUE t_swe_get_ayanamsa_ex_ut(VALUE self, VALUE julian_ut, VALUE flag )
+static VALUE t_swe_get_ayanamsa_ex_ut(VALUE self, VALUE julian_ut, VALUE flag)
 {
 	double ayanamsha;
 	char serr[AS_MAXCH];
@@ -202,7 +208,6 @@ static VALUE t_swe_get_ayanamsa_ex_ut(VALUE self, VALUE julian_ut, VALUE flag )
 
 	return rb_float_new(ayanamsha);
 }
-
 
 /*
  * This function computes house cusps, ascendant, midheaven, etc
@@ -272,8 +277,7 @@ static VALUE t_swe_houses(VALUE self, VALUE julian_day, VALUE latitude, VALUE lo
 // double *ascmc,      /* array for 10 doubles, explained further below */
 // double *cusp_speed,  /* like cusps */
 // double *ascmc_speed, /* like ascmc */
-// char *serr);       
-
+// char *serr);
 
 static VALUE t_swe_houses_ex2(VALUE self, VALUE julian_day, VALUE flag, VALUE latitude, VALUE longitude, VALUE house_system)
 {
@@ -285,7 +289,6 @@ static VALUE t_swe_houses_ex2(VALUE self, VALUE julian_day, VALUE flag, VALUE la
 
 	if (swe_houses_ex2(NUM2DBL(julian_day), NUM2INT(flag), NUM2DBL(latitude), NUM2DBL(longitude), NUM2CHR(house_system), cusps, ascmc, cusps_speed, ascmc_speed, serr) < 0)
 		rb_raise(rb_eRuntimeError, serr);
-
 
 	VALUE _cusps = rb_ary_new();
 	for (int i = 0; i < 13; i++)
@@ -332,10 +335,13 @@ static VALUE t_swe_rise_trans(VALUE self, VALUE julian_day, VALUE body, VALUE fl
 	geopos[2] = NUM2DBL(height);
 	int ipl;
 	char *starname;
-	if( TYPE(body) == T_STRING ) {
+	if (TYPE(body) == T_STRING)
+	{
 		starname = StringValuePtr(body);
 		ipl = 0;
-	} else {
+	}
+	else
+	{
 		ipl = NUM2INT(body);
 		starname = NULL;
 	}
@@ -369,10 +375,13 @@ static VALUE t_swe_rise_trans_true_hor(VALUE self, VALUE julian_day, VALUE body,
 	geopos[2] = NUM2DBL(height);
 	int ipl;
 	char *starname;
-	if( TYPE(body) == T_STRING ) {
+	if (TYPE(body) == T_STRING)
+	{
 		starname = StringValuePtr(body);
 		ipl = 0;
-	} else {
+	}
+	else
+	{
 		ipl = NUM2INT(body);
 		starname = NULL;
 	}
@@ -405,7 +414,7 @@ static VALUE t_swe_rise_trans_true_hor(VALUE self, VALUE julian_day, VALUE body,
 // ·     xaz[2] = apparent (refracted) altitude above horizon in degrees.
 // The apparent altitude of a body depends on the atmospheric pressure and temperature. If only the true altitude is required, these parameters can be neglected.
 // If atpress is given the value 0, the function estimates the pressure from the geographical altitude given in geopos[2] and attemp. If geopos[2] is 0, atpress will be estimated for sea level.
-static VALUE t_swe_azalt( VALUE self, VALUE julian_day, VALUE flag, VALUE lon, VALUE lat, VALUE height, VALUE pressure, VALUE temp, VALUE in0, VALUE in1, VALUE in2 )
+static VALUE t_swe_azalt(VALUE self, VALUE julian_day, VALUE flag, VALUE lon, VALUE lat, VALUE height, VALUE pressure, VALUE temp, VALUE in0, VALUE in1, VALUE in2)
 {
 	double geopos[3];
 	geopos[0] = NUM2DBL(lon);
@@ -428,13 +437,14 @@ static VALUE t_swe_azalt( VALUE self, VALUE julian_day, VALUE flag, VALUE lon, V
 }
 // https://www.astro.com/swisseph/swephprg.htm#_Toc112949076
 /* equator -> ecliptic    : eps must be positive
-* ecliptic -> equator    : eps must be negative
-* eps, longitude and latitude are in positive degrees! */
+ * ecliptic -> equator    : eps must be negative
+ * eps, longitude and latitude are in positive degrees! */
 // void swe_cotrans(
 // double *xpo,        /* 3 doubles: long., lat., dist. to be converted; distance remains unchanged, can be set to 1.00 */
 // double *xpn,        /* 3 doubles: long., lat., dist. Result of the conversion */
 // double eps);        /* obliquity of ecliptic, in degrees. */
-static VALUE t_swe_cotrans(int argc, VALUE *argv, VALUE self) {
+static VALUE t_swe_cotrans(int argc, VALUE *argv, VALUE self)
+{
 	// VALUE self, VALUE VALUE lon, VALUE lat, VALUE distance
 	if (argc < 3 || argc > 4)
 	{ // there should only be 3 or 4 arguments
@@ -442,8 +452,8 @@ static VALUE t_swe_cotrans(int argc, VALUE *argv, VALUE self) {
 	}
 	double eps = NUM2DBL(argv[0]);
 	double xpo[3];
-	xpo[0] = NUM2DBL(argv[1]);  // NUM2DBL(lon);
-	xpo[1] = NUM2DBL(argv[2]);  // NUM2DBL(lat);
+	xpo[0] = NUM2DBL(argv[1]); // NUM2DBL(lon);
+	xpo[1] = NUM2DBL(argv[2]); // NUM2DBL(lat);
 	xpo[2] = NUM2DBL((argc == 4) ? argv[3] : 1.0);
 
 	double xpn[3];
@@ -458,14 +468,14 @@ static VALUE t_swe_cotrans(int argc, VALUE *argv, VALUE self) {
 	return output;
 }
 
-static VALUE t_swe_house_pos( VALUE self, VALUE armc, VALUE geolat, VALUE eps, VALUE hsys, VALUE eclon, VALUE eclat )
+static VALUE t_swe_house_pos(VALUE self, VALUE armc, VALUE geolat, VALUE eps, VALUE hsys, VALUE eclon, VALUE eclat)
 {
-// double armc,        /* ARMC */
-// double geolat,      /* geographic latitude, in degrees */
-// double eps,              /* ecliptic obliquity, in degrees */
-// int hsys,                /* house method, one of the letters PKRCAV */
-// double *xpin,       /* array of 2 doubles: ecl. longitude and latitude of the planet */
-// char *serr);             /* return area for error or warning message */
+	// double armc,        /* ARMC */
+	// double geolat,      /* geographic latitude, in degrees */
+	// double eps,              /* ecliptic obliquity, in degrees */
+	// int hsys,                /* house method, one of the letters PKRCAV */
+	// double *xpin,       /* array of 2 doubles: ecl. longitude and latitude of the planet */
+	// char *serr);             /* return area for error or warning message */
 
 	double eclpos[2];
 	eclpos[0] = NUM2DBL(eclon);
@@ -505,7 +515,7 @@ double swe_solcross_ut(
 // 	return rb_float_new(retval);
 // }
 
-static VALUE t_swe_solcross_ut( VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
+static VALUE t_swe_solcross_ut(VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
 {
 	char serr[AS_MAXCH];
 
@@ -522,7 +532,7 @@ double swe_mooncross(
 	double tjd_et,
 	int32 iflag,
 	char *serr);
- 
+
 double swe_mooncross_ut(
 	double x2cross,
 	double tjd_ut,
@@ -539,7 +549,7 @@ double swe_mooncross_ut(
 // 	return rb_float_new(retval);
 // }
 
-static VALUE t_swe_mooncross_ut( VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
+static VALUE t_swe_mooncross_ut(VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
 {
 	char serr[AS_MAXCH];
 
@@ -557,7 +567,7 @@ double swe_mooncross_node_ut(
 	double *xlat,
 	char *serr);
 */
-static VALUE t_swe_mooncross_node_ut( VALUE self, VALUE tjd_ut, VALUE iflag, VALUE xlon, VALUE xlat)
+static VALUE t_swe_mooncross_node_ut(VALUE self, VALUE tjd_ut, VALUE iflag)
 {
 	char serr[AS_MAXCH];
 	double xlon, xlat;
@@ -565,11 +575,11 @@ static VALUE t_swe_mooncross_node_ut( VALUE self, VALUE tjd_ut, VALUE iflag, VAL
 	if (retval < tjd_ut)
 		rb_raise(rb_eRuntimeError, serr);
 	VALUE output = rb_ary_new();
-	rby_ary_push(output, retval);
-	rby_ary_push(output, xlon);
-	rby_ary_push(output, xlat);
+	rb_ary_push(output, retval);
+	rb_ary_push(output, xlon);
+	rb_ary_push(output, xlat);
 
-	return output;	
+	return output;
 }
 /*
 int32 swe_helio_cross(
@@ -580,7 +590,7 @@ int32 swe_helio_cross(
 	int32 dir,
 	double *jx,
 	char *serr);
-	
+
 int32 swe_helio_cross_ut(
 	int32 ipl,
 	double x2cross,
@@ -598,23 +608,23 @@ int32 swe_helio_cross_ut(
 // 	if (retval < tjd_tt)
 // 		rb_raise(rb_eRuntimeError, serr);
 // 	VALUE output = rb_ary_new();
-// 	rby_ary_push(output, retval);
-// 	rby_ary_push(output, jx);
+// 	rb_ary_push(output, retval);
+// 	rb_ary_push(output, jx);
 
-// 	return output;	
+// 	return output;
 // }
-static VALUE t_swe_helio_cross_ut( VALUE self, VALUE body, VALUE x2cross, VALUE tjd_ut, VALUE iflag, VALUE dir)
+static VALUE t_swe_helio_cross_ut(VALUE self, VALUE body, VALUE x2cross, VALUE tjd_ut, VALUE iflag, VALUE dir)
 {
 	char serr[AS_MAXCH];
 	double jx;
-	double retval = swe_helio_cross_ut(NUM2INT(ipl), NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), NUM2INT(dir), &jx, serr);
+	double retval = swe_helio_cross_ut(NUM2INT(body), NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), NUM2INT(dir), &jx, serr);
 	if (retval < tjd_ut)
 		rb_raise(rb_eRuntimeError, serr);
 	VALUE output = rb_ary_new();
-	rby_ary_push(output, retval);
-	rby_ary_push(output, jx);
+	rb_ary_push(output, retval);
+	rb_ary_push(output, jx);
 
-	return output;	
+	return output;
 }
 
 /*
@@ -640,7 +650,7 @@ int32 swe_nod_aps(
 	double *xaphe,
 	char *serr);
 */
-static VALUE t_swe_nod_aps_ut( VALUE self, VALUE julian_ut, VALUE body, VALUE iflag, VALUE method)
+static VALUE t_swe_nod_aps_ut(VALUE self, VALUE julian_ut, VALUE body, VALUE iflag, VALUE method)
 {
 	char serr[AS_MAXCH];
 	double xnasc[6];
@@ -648,7 +658,7 @@ static VALUE t_swe_nod_aps_ut( VALUE self, VALUE julian_ut, VALUE body, VALUE if
 	double xperi[6];
 	double xaphe[6];
 
-	if (swe_nod_aps(NUM2DBL(julian_ut), NUM2INT(body), NUM2INT(iflag), xnasc, xndsc, xperi, xaphe, serr) < 0)
+	if (swe_nod_aps(NUM2DBL(julian_ut), NUM2INT(body), NUM2INT(iflag), NUM2INT(method), xnasc, xndsc, xperi, xaphe, serr) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	VALUE output = rb_ary_new();
@@ -656,22 +666,22 @@ static VALUE t_swe_nod_aps_ut( VALUE self, VALUE julian_ut, VALUE body, VALUE if
 	VALUE ascending = rb_ary_new();
 	for (int i = 0; i < 6; i++)
 		rb_ary_push(ascending, rb_float_new(xnasc[i]));
-	rby_ary_push(output, ascending);
+	rb_ary_push(output, ascending);
 
 	VALUE descending = rb_ary_new();
 	for (int i = 0; i < 6; i++)
 		rb_ary_push(descending, rb_float_new(xndsc[i]));
-	rby_ary_push(output, descending);
+	rb_ary_push(output, descending);
 
 	VALUE perihelion = rb_ary_new();
 	for (int i = 0; i < 6; i++)
 		rb_ary_push(output, rb_float_new(xperi[i]));
-	rby_ary_push(output, perihelion);	
+	rb_ary_push(output, perihelion);
 
 	VALUE aphelion = rb_ary_new();
 	for (int i = 0; i < 6; i++)
 		rb_ary_push(output, rb_float_new(xaphe[i]));
-	rby_ary_push(output, aphelion);
+	rb_ary_push(output, aphelion);
 
 	return output; // return array of arrays
 }
@@ -692,22 +702,22 @@ static VALUE t_swe_nod_aps_ut( VALUE self, VALUE julian_ut, VALUE body, VALUE if
 // 	VALUE ascending = rb_ary_new();
 // 	for (int i = 0; i < 6; i++)
 // 		rb_ary_push(ascending, rb_float_new(xnasc[i]));
-// 	rby_ary_push(output, ascending);
+// 	rb_ary_push(output, ascending);
 
 // 	VALUE descending = rb_ary_new();
 // 	for (int i = 0; i < 6; i++)
 // 		rb_ary_push(descending, rb_float_new(xndsc[i]));
-// 	rby_ary_push(output, descending);
+// 	rb_ary_push(output, descending);
 
 // 	VALUE perihelion = rb_ary_new();
 // 	for (int i = 0; i < 6; i++)
 // 		rb_ary_push(output, rb_float_new(xperi[i]));
-// 	rby_ary_push(output, perihelion);	
+// 	rb_ary_push(output, perihelion);
 
 // 	VALUE aphelion = rb_ary_new();
 // 	for (int i = 0; i < 6; i++)
 // 		rb_ary_push(output, rb_float_new(xaphe[i]));
-// 	rby_ary_push(output, aphelion);
+// 	rb_ary_push(output, aphelion);
 
 // 	return output; // return array of arrays
 // }
@@ -722,7 +732,7 @@ int32 swe_calc_pctr(
 	char *serr);
 */
 // tjd_et   = Julian day, Ephemeris time, where tjd_et = tjd_ut + swe_deltat(tjd_ut)
-static VALUE t_swe_calc_pctr( VALUE self, VALUE julian_et, VALUE body, VALUE center, VALUE iflag)
+static VALUE t_swe_calc_pctr(VALUE self, VALUE julian_et, VALUE body, VALUE center, VALUE iflag)
 {
 	char serr[AS_MAXCH];
 	double xxret[6];
@@ -749,6 +759,7 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_revjul", t_swe_revjul, -1);
 	rb_define_module_function(rb_mSwe4r, "swe_set_topo", t_swe_set_topo, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_calc_ut", t_swe_calc_ut, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_sidtime", t_swe_sidtime, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_set_sid_mode", t_swe_set_sid_mode, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_get_ayanamsa_ut", t_swe_get_ayanamsa_ut, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_houses", t_swe_houses, 4);
@@ -763,11 +774,11 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_solcross_ut", t_swe_solcross_ut, 3);
 	// rb_define_module_function(rb_mSwe4r, "swe_mooncross", t_swe_mooncross, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_mooncross_ut", t_swe_mooncross_ut, 3);
-	rb_define_module_function(rb_mSwe4r, "swe_mooncross_node_ut", t_swe_mooncross_node_ut, 4);
+	rb_define_module_function(rb_mSwe4r, "swe_mooncross_node_ut", t_swe_mooncross_node_ut, 2);
 	// rb_define_module_function(rb_mSwe4r, "swe_helio_cross", t_swe_helio_cross, 4);
-	rb_define_module_function(rb_mSwe4r, "swe_helio_cross_ut", t_swe_helio_cross_ut, 4);
+	rb_define_module_function(rb_mSwe4r, "swe_helio_cross_ut", t_swe_helio_cross_ut, 5);
 	rb_define_module_function(rb_mSwe4r, "swe_nod_aps_ut", t_swe_nod_aps_ut, 4);
-	rb_define_module_function(rb_mSwe4r, "swe_nod_aps", t_swe_nod_aps, 4);
+	// rb_define_module_function(rb_mSwe4r, "swe_nod_aps", t_swe_nod_aps, 4);
 	rb_define_module_function(rb_mSwe4r, "swe_calc_pctr", t_swe_calc_pctr, 4);
 
 	// Constants
@@ -826,7 +837,7 @@ void Init_swe4r()
 
 	/* sidereal modes (ayanamsas) */
 	rb_define_const(rb_mSwe4r, "SE_SIDM_FAGAN_BRADLEY", INT2FIX(SE_SIDM_FAGAN_BRADLEY)); // 0
-	rb_define_const(rb_mSwe4r, "SE_SIDM_LAHIRI", INT2FIX(SE_SIDM_LAHIRI));	
+	rb_define_const(rb_mSwe4r, "SE_SIDM_LAHIRI", INT2FIX(SE_SIDM_LAHIRI));
 	rb_define_const(rb_mSwe4r, "SE_SIDM_DELUCE", INT2FIX(SE_SIDM_DELUCE));
 	rb_define_const(rb_mSwe4r, "SE_SIDM_RAMAN", INT2FIX(SE_SIDM_RAMAN));
 	rb_define_const(rb_mSwe4r, "SE_SIDM_USHASHASHI", INT2FIX(SE_SIDM_USHASHASHI));
@@ -872,15 +883,13 @@ void Init_swe4r()
 	rb_define_const(rb_mSwe4r, "SE_SIDM_LAHIRI_VP285", INT2FIX(SE_SIDM_LAHIRI_VP285));
 	rb_define_const(rb_mSwe4r, "SE_SIDM_KRISHNAMURTI_VP291", INT2FIX(SE_SIDM_KRISHNAMURTI_VP291));
 	rb_define_const(rb_mSwe4r, "SE_SIDM_LAHIRI_ICRC", INT2FIX(SE_SIDM_LAHIRI_ICRC)); // 46
-	rb_define_const(rb_mSwe4r, "SE_SIDM_USER", INT2FIX(SE_SIDM_USER)); //255 
-
+	rb_define_const(rb_mSwe4r, "SE_SIDM_USER", INT2FIX(SE_SIDM_USER));							 // 255
 
 	rb_define_const(rb_mSwe4r, "SE_GREG_CAL", INT2FIX(SE_GREG_CAL));
 	rb_define_const(rb_mSwe4r, "SE_JUL_CAL", INT2FIX(SE_JUL_CAL));
 
 	rb_define_const(rb_mSwe4r, "SE_ECL2HOR", INT2FIX(SE_ECL2HOR));
 	rb_define_const(rb_mSwe4r, "SE_EQU2HOR", INT2FIX(SE_EQU2HOR));
-
 
 	rb_define_const(rb_mSwe4r, "SE_CALC_RISE", INT2FIX(SE_CALC_RISE));
 	rb_define_const(rb_mSwe4r, "SE_CALC_SET", INT2FIX(SE_CALC_SET));

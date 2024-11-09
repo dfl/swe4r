@@ -13,6 +13,7 @@ task :install do
   `gem uninstall swe4r`
   puts "building"
   `gem build`
-  `gem install --local ./swe4r-1.0.gem`
+  latest = `ls -t *.gem | head -n 1`.chomp
+  `gem install --local ./#{latest}`
   puts "done!"
 end

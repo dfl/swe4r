@@ -175,4 +175,9 @@ class Swe4rTest < Test::Unit::TestCase
     assert_equal 1.0, c
   end
 
+  def test_swe_sidtime
+    s = Swe4r::swe_sidtime(2444838.972916667)
+    assert_equal 11.350000005215406, s
+  end
+
 end
