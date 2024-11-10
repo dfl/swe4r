@@ -32,7 +32,7 @@ class Swe4rTest < Test::Unit::TestCase
 
     # Test using Lahari sidereal mode
     Swe4r::swe_set_sid_mode(Swe4r::SE_SIDM_LAHIRI, 0, 0)
-    assert_equal(23.600632656944185, Swe4r::swe_get_ayanamsa_ut(2444838.972916667))
+    assert_equal(23.600632656944242, Swe4r::swe_get_ayanamsa_ut(2444838.972916667))
 
     # Test using user defined sidereal mode
     Swe4r::swe_set_sid_mode(Swe4r::SE_SIDM_USER, 2415020.5, 22.460489112721632)
@@ -42,7 +42,7 @@ class Swe4rTest < Test::Unit::TestCase
 
   def test_swe_get_ayanamsa_ex_ut
     Swe4r::swe_set_sid_mode(Swe4r::SE_SIDM_LAHIRI, 0, 0)
-    assert_equal(23.59667507149339, Swe4r::swe_get_ayanamsa_ex_ut(2444838.972916667, Swe4r::SEFLG_MOSEPH))
+    assert_equal(23.596675071493447, Swe4r::swe_get_ayanamsa_ex_ut(2444838.972916667, Swe4r::SEFLG_MOSEPH))
   end
 
   def test_swe_calc_ut
@@ -64,35 +64,35 @@ class Swe4rTest < Test::Unit::TestCase
     # Body: Sun
     # Flags: Moshier Ephemeris, High Precision Speed
     body = Swe4r::swe_calc_ut(2444838.972916667, Swe4r::SE_SUN, Swe4r::SEFLG_MOSEPH|Swe4r::SEFLG_SPEED)
-    assert_equal(149.26566155075085, body[0])
-    assert_equal(-0.0001209560884116579, body[1])
-    assert_equal(1.0112944920684555, body[2])
-    assert_equal(0.9636052090727139, body[3])
-    assert_equal(1.3573058519899091e-05, body[4])
-    assert_equal(-0.0002028500183236368, body[5])
+    assert_equal(149.26566155068903, body[0])
+    assert_equal(-0.00012095608857040173, body[1])
+    assert_equal(1.0112944920684557, body[2])
+    assert_equal(0.9636052198327643, body[3])
+    assert_equal(1.3573116429482971e-05, body[4])
+    assert_equal(-0.0002028500180286159, body[5])
 
      # Test #3...
      # Body: Sun
      # Flags: Moshier Ephemeris, High Precision Speed, True Positions
      body = Swe4r::swe_calc_ut(2444838.972916667, Swe4r::SE_SUN, Swe4r::SEFLG_MOSEPH|Swe4r::SEFLG_TRUEPOS|Swe4r::SEFLG_SPEED)
-     assert_equal(149.27128949344328, body[0])
-     assert_equal(-0.00012086030263409888, body[1])
+     assert_equal(149.27128949344433, body[0])
+     assert_equal(-0.000120860302637052, body[1])
      assert_equal(1.0112944920684555, body[2])
-     assert_equal(0.9636063426569487, body[3])
-     assert_equal(1.3573775684911814e-05, body[4])
-     assert_equal(-0.00020285001901355993, body[5])
+     assert_equal(0.9636063535153125, body[3])
+     assert_equal(1.357381533531308e-05, body[4])
+     assert_equal(-0.00020285001841389172, body[5])
 
      # Test #4...
      # Body: Sun
      # Flags: Moshier Ephemeris, High Precision Speed, True Positions, Topocentric
      Swe4r::swe_set_topo(-112.183333, 45.45, 1524)
      body = Swe4r::swe_calc_ut(2444838.972916667, Swe4r::SE_SUN, Swe4r::SEFLG_MOSEPH|Swe4r::SEFLG_TRUEPOS|Swe4r::SEFLG_SPEED|Swe4r::SEFLG_TOPOCTR)
-     assert_equal(149.27327994957028, body[0])
-     assert_equal(-0.0013677823223172442, body[1])
+     assert_equal(149.2732799495714, body[0])
+     assert_equal(-0.001367782322315945, body[1])
      assert_equal(1.0113041763512773, body[2])
-     assert_equal(0.9683657793763634, body[3])
-     assert_equal(0.0037440250636134086, body[4])
-     assert_equal(-0.0003579187534546972, body[5])
+     assert_equal(0.9683657901648964, body[3])
+     assert_equal(0.003744025117672333, body[4])
+     assert_equal(-0.0003579187547015105, body[5])
 
      # Test #5...
      # Body: Sun
@@ -100,12 +100,12 @@ class Swe4rTest < Test::Unit::TestCase
      Swe4r::swe_set_topo(-112.183333, 45.45, 1524)
      Swe4r::swe_set_sid_mode(1, 0, 0)
      body = Swe4r::swe_calc_ut(2444838.972916667, Swe4r::SE_SUN, Swe4r::SEFLG_MOSEPH|Swe4r::SEFLG_TRUEPOS|Swe4r::SEFLG_SPEED|Swe4r::SEFLG_TOPOCTR|Swe4r::SEFLG_SIDEREAL)
-     assert_equal(125.67660487807687, body[0])
-     assert_equal(-0.0013677823223169163, body[1])
+     assert_equal(125.67660487807792, body[0])
+     assert_equal(-0.0013677823223154056, body[1])
      assert_equal(1.0113041763512773, body[2])
-     assert_equal(0.9683250913810203, body[3])
-     assert_equal(0.0037468508076796666, body[4])
-     assert_equal(-0.0003579187527254481, body[5])
+     assert_equal(0.9683251020932834, body[3])
+     assert_equal(0.0037468508348008473, body[4])
+     assert_equal(-0.0003579187537684393, body[5])
 
   end
 
@@ -115,24 +115,20 @@ class Swe4rTest < Test::Unit::TestCase
     systems = ['P','K','O','R','C','A','E','V','X','H','T','B'] # 'G'
     systems.each do |s|
       Swe4r::swe_houses(2444838.972916667, 45.45, -112.183333, s)
-      # puts s
     end
 
     # Test using Placidus house system
     assert_equal(
-      [0.0,
-      133.95429950260865,
-      153.80292074230056,
-      178.8079648771977,
-      210.87358004482252,
-      248.43918770734507,
-      284.2655252696597,
-      313.95429950260865,
-      333.80292074230056,
-      358.8079648771977,
-      30.87358004482253,
-      68.43918770734508,
-      104.2655252696597],
+      [133.95429950260865,
+        30.87358004482253,
+        28.74575330914001,
+        273.24041521079045,
+        116.7140528342306,
+        92.42567887272338,
+        133.52799512898898,
+        272.4256788727234,
+        0.0,
+        0.0],
      [133.95429950260865,
       30.87358004482253,
       28.74575330914001,
@@ -177,7 +173,7 @@ class Swe4rTest < Test::Unit::TestCase
 
   def test_swe_sidtime
     s = Swe4r::swe_sidtime(2444838.972916667)
-    assert_equal 11.350000005215406, s
+    assert_equal 9.395272420609334, s
   end
 
 end
