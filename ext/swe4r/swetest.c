@@ -641,6 +641,7 @@ static char *infoexamp = "\n\
 #include "swephexp.h" 	/* this includes  "sweodef.h" */
 #include "swephlib.h"
 #include "sweph.h"
+#include <math.h>
 
 /*
  * programmers warning: It looks much worse than it is!
@@ -738,7 +739,7 @@ static char *our_strcpy(char *to, char *from);
 /* globals shared between main() and print_line() */
 static char *fmt = "PLBRS";
 static char *gap = " ";
-static double t, te, tut, jut = 0;
+static double t, te, tut, jut = 0, tstep = 1;
 static int jmon, jday, jyear;
 static int ipl = SE_SUN, ipldiff = SE_SUN, nhouses = 12;
 static int iplctr = SE_SUN;
@@ -847,16 +848,13 @@ int main(int argc, char *argv[])
   double aya_t0 = 0, aya_val0 = 0;
   AS_BOOL no_speed = FALSE;
   int32 sid_mode = SE_SIDM_FAGAN_BRADLEY;
-  double t2, tstep = 1, thour = 0;
+  double t2, thour = 0;
   double delt;
   double tid_acc = 0;
   datm[0] = 1013.25; datm[1] = 15; datm[2] = 40; datm[3] = 0;
   dobs[0] = 0; dobs[1] = 0;
   dobs[2] = 0; dobs[3] = 0; dobs[4] = 0; dobs[5] = 0;
   serr[0] = serr_save[0] = serr_warn[0] = sdate_save[0] = '\0';
-# ifdef MACOS
-  argc = ccommand(&argv); /* display the arguments window */    
-# endif
   *stimein = '\0';
   strcpy(ephepath, "");
   strcpy(fname, SE_FNAME_DFT);
@@ -1494,7 +1492,7 @@ int main(int argc, char *argv[])
         else
           printf(" jul.");
 	jd_to_time_string(jut, stimeout);
-	printf(stimeout);
+	printf("%s", stimeout);
         if (universal_time) {
 	  if (time_flag & BIT_TIME_LMT)
 	    printf(" LMT");
@@ -2000,7 +1998,7 @@ int main(int argc, char *argv[])
   /* close open files and free allocated space */
   end_main:
   if (do_set_astro_models) {
-    printf(smod);
+    printf("%s", smod);
   }
   swe_close();
   return  OK;
@@ -2171,12 +2169,17 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	printf("%02d.%02d.%04d", jday, jmon, jyear);
 	if (gregflag == SE_JUL_CAL) printf("j");
 	if (jut != 0 || step_in_minutes || step_in_seconds ) {
-	  int h, m, s;
-	  s = (int) (jut * 3600 + 0.5);
-	  h = (int) (s / 3600.0);
-	  m = (int) ((s % 3600) / 60.0);
-	  s %= 60;
-	  printf(" %d:%02d:%02d", h, m, s);
+	  int h, m, s, isgn;
+	  double dsecfr;
+	  int roundflag = SE_SPLIT_DEG_ROUND_SEC;
+	  if ((tstep < 1 && tstep > -1) && step_in_seconds) {
+	    roundflag = 0;
+	    swe_split_deg(jut, roundflag, &h, &m, &s, &dsecfr, &isgn);
+	    printf(" %d:%02d:%02.2lf", h, m, s + dsecfr);
+	  } else {
+	    swe_split_deg(jut, roundflag, &h, &m, &s, &dsecfr, &isgn);
+	    printf(" %d:%02d:%02d", h, m, s);
+	  }
 	  if (universal_time)
 	    printf(" UT");
 	  else
@@ -2191,7 +2194,7 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	printf("%02d%02d%02d", jyear % 100, jmon, jday);
 	break;
     case 'L':
-        if (is_label) { printf(slon); break; }
+        if (is_label) { printf("%s", slon); break; }
 	if (psp != NULL && (*psp == 'q' || *psp == 'y')) { /* delta t or time equation */
 	  printf("%# 11.7f", x[0]);
 	  printf("s");
@@ -2200,7 +2203,7 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	fputs(dms(x[0], round_flag),stdout);
 	break;
     case 'l':
-        if (is_label) { printf(slon); break; }
+        if (is_label) { printf("%s", slon); break; }
 	if (output_extra_prec)
 	  printf("%# 11.11f", x[0]);
 	else
@@ -2219,7 +2222,7 @@ static int print_line(int mode, AS_BOOL is_first, int sid_mode)
 	printf("%# 11.7f", hposj);
 	break;
     case 'Z':
-        if (is_label) { printf(slon); break; }
+        if (is_label) { printf("%s", slon); break; }
 	fputs(dms(x[0], round_flag|BIT_ZODIAC),stdout);
 	break;
     case 'S':
