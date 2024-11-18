@@ -9,7 +9,14 @@ Gem::Specification.new do |s|
   s.email             = "dfl@alum.mit.edu"
   s.license           = "GPL-2.0-or-later"
   s.extra_rdoc_files  = ['README.rdoc']
-  s.files             = Dir.glob('lib/**/*.{rb}') + Dir.glob('ext/**/*.{rb,h,c}')
+  exclude_patterns = [
+    'ext/swe4r/swemini.c',
+    'ext/swe4r/sweasp.c',
+    'ext/swe4r/swephgen4.c',
+    'ext/swe4r/swetest.c',
+    'ext/swe4r/swevents.c'
+  ]
+  s.files             = ( Dir.glob('lib/**/*.{rb}') + Dir.glob('ext/**/*.{rb,h,c}') ) - exclude_patterns
   s.extensions        = ['ext/swe4r/extconf.rb']
   s.required_ruby_version = ">= 2.0"
 end
