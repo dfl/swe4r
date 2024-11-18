@@ -12,5 +12,4 @@ Gem::Specification.new do |s|
   s.files             = Dir.glob('lib/**/*.{rb}') + Dir.glob('ext/**/*.{rb,h,c}')
   s.extensions        = ['ext/swe4r/extconf.rb']
   s.required_ruby_version = ">= 2.0"
-
 end
