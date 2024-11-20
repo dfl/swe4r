@@ -1,0 +1,45 @@
+name: checks
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13]
+        ruby-version:
+          - '2.0'
+          - '2.1'
+          - '2.2'
+          - '2.3'
+          - '2.4'
+          - '2.5'
+          - '2.6'
+          - '2.7'
+          - '3.0'
+          - '3.1'
+          - '3.2'
+          - '3.2'
+          - '3.3'
+        exclude:
+          - os: ubuntu-latest
+            ruby-version: '2.2' # setup-ruby fails to install ruby 2.2 on ubuntu
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+      - run: rake install
+      - run: rake test
