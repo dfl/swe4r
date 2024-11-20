@@ -9,11 +9,16 @@ task :default => :test
 
 desc "build and install locally"
 task :install do
-  puts "uninstalling"
-  `gem uninstall swe4r`
-  puts "building"
-  `gem build`
-  latest = `ls -t *.gem | head -n 1`.chomp
-  `gem install --local ./#{latest}`
+  shell!('gem uninstall swe4r')
+  shell!('gem build swe4r.gemspec')
+  latest = shell!('ls -t *.gem | head -n 1')
+  shell!("gem install --local ./#{latest}")
   puts "done!"
+end
+
+def shell!(cmd)
+  puts "---> #{cmd}"
+  result = `#{cmd}`.chomp
+  raise "Command failed: #{cmd}" unless $?.success?
+  result
 end
