@@ -675,12 +675,12 @@ static VALUE t_swe_nod_aps_ut(VALUE self, VALUE julian_ut, VALUE body, VALUE ifl
 
 	VALUE perihelion = rb_ary_new();
 	for (int i = 0; i < 6; i++)
-		rb_ary_push(output, rb_float_new(xperi[i]));
+		rb_ary_push(perihelion, rb_float_new(xperi[i]));
 	rb_ary_push(output, perihelion);
 
 	VALUE aphelion = rb_ary_new();
 	for (int i = 0; i < 6; i++)
-		rb_ary_push(output, rb_float_new(xaphe[i]));
+		rb_ary_push(aphelion, rb_float_new(xaphe[i]));
 	rb_ary_push(output, aphelion);
 
 	return output; // return array of arrays
@@ -890,6 +890,11 @@ void Init_swe4r()
 
 	rb_define_const(rb_mSwe4r, "SE_ECL2HOR", INT2FIX(SE_ECL2HOR));
 	rb_define_const(rb_mSwe4r, "SE_EQU2HOR", INT2FIX(SE_EQU2HOR));
+
+	rb_define_const(rb_mSwe4r, "SE_NODBIT_MEAN", INT2FIX(SE_NODBIT_MEAN));
+	rb_define_const(rb_mSwe4r, "SE_NODBIT_OSCU", INT2FIX(SE_NODBIT_OSCU));
+	rb_define_const(rb_mSwe4r, "SE_NODBIT_OSCU_BAR", INT2FIX(SE_NODBIT_OSCU_BAR));
+	rb_define_const(rb_mSwe4r, "SE_NODBIT_FOPOINT", INT2FIX(SE_NODBIT_FOPOINT));
 
 	rb_define_const(rb_mSwe4r, "SE_CALC_RISE", INT2FIX(SE_CALC_RISE));
 	rb_define_const(rb_mSwe4r, "SE_CALC_SET", INT2FIX(SE_CALC_SET));

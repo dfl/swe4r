@@ -197,4 +197,12 @@ class Swe4rTest < Test::Unit::TestCase
   def test_swe_sidtime
     assert_float_equal(9.395272, Swe4r::swe_sidtime(@test_date_jd))
   end
+
+  def test_swe_nod_aps_ut
+    nasc, ndsc, xperi, xaphe = Swe4r::swe_nod_aps_ut( @test_date_jd, Swe4r::SE_MERCURY, Swe4r::SEFLG_HELCTR, Swe4r::SE_NODBIT_MEAN )
+    assert_equal nasc.first.round(4), 48.1092
+    assert_equal ndsc.first.round(4), 228.1092
+    assert_equal xperi.first.round(4), 76.9845
+    assert_equal xaphe.first.round(4), 256.9845
+  end
 end
