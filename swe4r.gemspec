@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files  = ['README.rdoc']
   s.files             = Dir.glob('lib/**/*.{rb}') + Dir.glob('ext/**/*.{rb,h,c}')
   s.extensions        = ['ext/swe4r/extconf.rb']
-  s.required_ruby_version = '>= 2.0'
+  s.required_ruby_version = '>= 2.6'
 
   s.add_development_dependency 'minitest', '~> 5.16'
   s.add_development_dependency 'minitest-reporters', '~> 1.6'
