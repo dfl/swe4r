@@ -3,8 +3,8 @@
 gem 'minitest'
 # require 'minitest'
 require 'minitest/autorun'
-require 'minitest/reporters'
-require 'minitest/rg'
+# require 'minitest/reporters'
+# require 'minitest/rg'
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'swe4r'
