@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'minitest'
+gem 'minitest'
+# require 'minitest'
 require 'minitest/autorun'
 require 'minitest/reporters'
 require 'minitest/rg'
