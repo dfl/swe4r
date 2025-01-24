@@ -17,4 +17,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest-reporters', '~> 1.6'
   s.add_development_dependency 'minitest-rg', '~> 5.3'
   s.add_development_dependency 'victor', '~> 0.3.4'
+
+  s.metadata['rubygems_mfa_required'] = 'true'
 end
