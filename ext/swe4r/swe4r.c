@@ -314,6 +314,13 @@ static VALUE t_swe_houses_ex2(VALUE self, VALUE julian_day, VALUE flag, VALUE la
 	return output;
 }
 
+// char *swe_house_name(
+// 			int hsys);          /* house method, ascii code of one of the letters PKORCAEVXHTBG */
+static VALUE t_swe_house_name(VALUE self, VALUE hsys)
+{
+	return rb_str_new_cstr(swe_house_name(NUM2CHR(hsys)));
+}
+
 // int32 swe_rise_trans(
 // double tjd_ut,      /* search after this time (UT) */
 // int32 ipl,               /* planet number, if planet or moon */
@@ -764,6 +771,7 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_get_ayanamsa_ut", t_swe_get_ayanamsa_ut, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_houses", t_swe_houses, 4);
 	rb_define_module_function(rb_mSwe4r, "swe_houses_ex2", t_swe_houses_ex2, 5);
+	rb_define_module_function(rb_mSwe4r, "swe_house_name", t_swe_house_name, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_get_ayanamsa_ex_ut", t_swe_get_ayanamsa_ex_ut, 2);
 	rb_define_module_function(rb_mSwe4r, "swe_rise_trans", t_swe_rise_trans, 9);
 	rb_define_module_function(rb_mSwe4r, "swe_rise_trans_true_hor", t_swe_rise_trans_true_hor, 10);

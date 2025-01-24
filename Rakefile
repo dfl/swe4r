@@ -4,21 +4,25 @@ Rake::TestTask.new do |t|
   t.libs << 'test'
 end
 
-desc "Run tests"
-task :default => :test
+desc 'Run tests'
+task default: %i[install test]
 
-desc "build and install locally"
+desc 'build and install locally'
 task :install do
-  shell!('gem uninstall swe4r')
-  shell!('gem build swe4r.gemspec')
-  latest = shell!('ls -t *.gem | head -n 1')
-  shell!("gem install --local ./#{latest}")
-  puts "done!"
+  version = run_cmd('gem which swe4r')
+  latest = run_cmd('ls -t *.gem | head -n 1')
+  if version =~ /latest.chomp(".gem")/
+    puts "already installed! #{latest}"
+  else
+    run_cmd('gem uninstall swe4r') unless version =~ /ERROR/m
+    run_cmd('gem build swe4r.gemspec')
+    latest = run_cmd('ls -t *.gem | head -n 1')
+    run_cmd("gem install --local ./#{latest}")
+  end
+  puts 'done!'
 end
 
-def shell!(cmd)
-  puts "---> #{cmd}"
-  result = `#{cmd}`.chomp
-  raise "Command failed: #{cmd}" unless $?.success?
-  result
+def run_cmd(cmd)
+  puts "----->  Running command: `#{cmd}`"
+  `#{cmd}`.chomp
 end
