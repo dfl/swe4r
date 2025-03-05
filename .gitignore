@@ -5,3 +5,4 @@
 *.tmproj
 .DS_Store
 ext/swe4r/swe4r.bundle.dSYM
+.aider*

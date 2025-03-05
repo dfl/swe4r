@@ -754,6 +754,83 @@ static VALUE t_swe_calc_pctr(VALUE self, VALUE julian_et, VALUE body, VALUE cent
 	return output;
 }
 
+/*
+ * Calculate orbital elements of a planet or asteroid
+ * https://www.astro.com/swisseph/swephprg.htm#_Toc112949042
+ * int32 swe_get_orbital_elements(
+ *   double tjd_et,      // Julian day in ET/TT
+ *   int32 ipl,          // planet number
+ *   int32 iflag,        // flag bits
+ *   double *dret,       // return values, see below
+ *   char *serr);        // error string
+ *
+ * Returns array with the following values:
+ * - 0: semi-major axis (AU)
+ * - 1: eccentricity
+ * - 2: inclination (degrees)
+ * - 3: longitude of ascending node (degrees)
+ * - 4: argument of perihelion (degrees)
+ * - 5: longitude of perihelion (degrees)
+ * - 6: mean anomaly (degrees)
+ * - 7: true anomaly (degrees)
+ * - 8: eccentric anomaly (degrees)
+ * - 9: mean longitude (degrees)
+ * - 10: semi-minor axis (AU)
+ * - 11: focal distance (AU)
+ * - 12: perihelion distance (AU)
+ * - 13: aphelion distance (AU)
+ * - 14: orbital period (years)
+ * - 15: mean daily motion (degrees)
+ * - 16: daily motion at tjd_et (degrees)
+ */
+static VALUE t_swe_get_orbital_elements(VALUE self, VALUE julian_et, VALUE body, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	double dret[17]; // Array to store the return values
+
+	if (swe_get_orbital_elements(NUM2DBL(julian_et), NUM2INT(body), NUM2INT(iflag), dret, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+	for (int i = 0; i < 17; i++)
+		rb_ary_push(output, rb_float_new(dret[i]));
+
+	return output;
+}
+
+/*
+ * Get the Delta T value (difference between ET and UT)
+ * https://www.astro.com/swisseph/swephprg.htm#_Toc112949107
+ * double swe_deltat(double tjd_ut);
+ */
+static VALUE t_swe_deltat(VALUE self, VALUE julian_ut)
+{
+	double delta_t = swe_deltat(NUM2DBL(julian_ut));
+	return rb_float_new(delta_t);
+}
+
+/*
+ * Get the Delta T value (difference between ET and UT) with explicit ephemeris
+ * https://www.astro.com/swisseph/swephprg.htm#_Toc112949107
+ * double swe_deltat_ex(double tjd_ut, int32 iflag, char *serr);
+ */
+static VALUE t_swe_deltat_ex(VALUE self, VALUE julian_ut, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	double delta_t = swe_deltat_ex(NUM2DBL(julian_ut), NUM2INT(iflag), serr);
+
+	// If there's an error message, return it along with the delta_t value
+	if (serr[0] != '\0')
+	{
+		VALUE result = rb_ary_new();
+		rb_ary_push(result, rb_float_new(delta_t));
+		rb_ary_push(result, rb_str_new_cstr(serr));
+		return result;
+	}
+
+	return rb_float_new(delta_t);
+}
+
 void Init_swe4r()
 {
 	// Module
@@ -788,6 +865,9 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_nod_aps_ut", t_swe_nod_aps_ut, 4);
 	// rb_define_module_function(rb_mSwe4r, "swe_nod_aps", t_swe_nod_aps, 4);
 	rb_define_module_function(rb_mSwe4r, "swe_calc_pctr", t_swe_calc_pctr, 4);
+	rb_define_module_function(rb_mSwe4r, "swe_get_orbital_elements", t_swe_get_orbital_elements, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_deltat", t_swe_deltat, 1);
+	rb_define_module_function(rb_mSwe4r, "swe_deltat_ex", t_swe_deltat_ex, 2);
 
 	// Constants
 

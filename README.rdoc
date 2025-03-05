@@ -28,6 +28,9 @@ The following functions of the {Swiss Ephemeris API}[http://www.astro.com/swisse
 {swe_mooncross_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973]
 {swe_helio_cross_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948973]
 {swe_nod_aps_ut}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948980]
+{swe_deltat_ex}[https://www.astro.com/swisseph/swephprg.htm#_Toc112949010]
+{swe_deltat}[https://www.astro.com/swisseph/swephprg.htm#_Toc112949011]
+{swe_get_orbital_elements}[https://www.astro.com/swisseph/swephprg.htm#_Toc112948981]
 
 == Examples
 The following example demonstrates how to calculate the position of a celestial body such as a planet using the  _swe_calc_ut_ function
