@@ -9,7 +9,8 @@ require 'minitest/autorun'
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'swe4r'
 
-Swe4r.swe_set_ephe_path(ENV.fetch("SE_EPHE_PATH"))
+# Swe4r.swe_set_ephe_path(ENV.fetch("SE_EPHE_PATH"))
+Swe4r.swe_set_ephe_path( File.expand_path('../ext/swe4r', __dir__))
 
 class Swe4rTest < Minitest::Test
   DELTA = 1e-6 # Tolerance for floating point comparisons
@@ -330,6 +331,16 @@ class Swe4rTest < Minitest::Test
     assert ceres_elements[10] > 4.0 && ceres_elements[10] < 5.0,
            "Ceres' orbital period should be between 4.0-5.0 years, got #{ceres_elements[10]}"
   end  
-  
+
+  def test_fixstar2
+    # Swe4r.swe_set_ephe_path( File.expand_path('../ext/swe4r', __dir__))
+    mag = Swe4r.swe_fixstar2_mag("Aldebaran")
+    assert_equal 0.86, mag
+
+    lon, lat, dist, * = Swe4r.swe_fixstar2("Aldebaran", @test_date_jd, 0)
+    assert_equal 69.5276, lon.round(4)
+    assert_equal -5.4681, lat.round(4)
+    assert_equal 4214436.654, dist.round(3)
+  end
   
 end

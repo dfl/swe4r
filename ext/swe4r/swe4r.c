@@ -1,7 +1,7 @@
 /*
 Swe4r :: Swiss Ephemeris for Ruby - A C extension for the Swiss Ephemeris library (http://www.astro.com/swisseph/)
 Copyright (C) 2012 Andrew Kirk (andrew.kirk@windhorsemedia.com)
-Additional work (C) 2024 David Lowenfels (dfl@alum.mit.edu)
+Additional work (C) 2024-25 David Lowenfels (dfl@alum.mit.edu)
 
 This file is part of Swe4r.
 
@@ -831,6 +831,47 @@ static VALUE t_swe_deltat_ex(VALUE self, VALUE julian_ut, VALUE iflag)
 	return rb_float_new(delta_t);
 }
 
+static VALUE t_swe_fixstar2(VALUE self, VALUE star, VALUE julian_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	double results[6];
+
+	if (swe_fixstar2(StringValuePtr(star), NUM2DBL(julian_et), NUM2INT(iflag), results, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(output, rb_float_new(results[i]));
+
+	return output;
+}
+
+static VALUE t_swe_fixstar2_ut(VALUE self, VALUE star, VALUE julian_ut, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	double results[6];
+
+	if (swe_fixstar2_ut(StringValuePtr(star), NUM2DBL(julian_ut), NUM2INT(iflag), results, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(output, rb_float_new(results[i]));
+
+	return output;
+}
+
+static VALUE t_swe_fixstar2_mag(VALUE self, VALUE star)
+{
+	char serr[AS_MAXCH];
+	double mag;
+
+	if (swe_fixstar2_mag(StringValuePtr(star), &mag, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	return rb_float_new(mag);
+}
+
 void Init_swe4r()
 {
 	// Module
@@ -868,6 +909,9 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_get_orbital_elements", t_swe_get_orbital_elements, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_deltat", t_swe_deltat, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_deltat_ex", t_swe_deltat_ex, 2);
+	rb_define_module_function(rb_mSwe4r, "swe_fixstar2", t_swe_fixstar2, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_fixstar2_ut", t_swe_fixstar2_ut, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_fixstar2_mag", t_swe_fixstar2_mag, 1);
 
 	// Constants
 
