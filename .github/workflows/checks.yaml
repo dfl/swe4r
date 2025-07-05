@@ -32,9 +32,10 @@ jobs:
           - '3.2'
           - '3.2'
           - '3.3'
-        exclude:
-          - os: ubuntu-latest
-            ruby-version: '2.2' # setup-ruby fails to install ruby 2.2 on ubuntu
+          - '3.4'
+        # exclude:
+        #   - os: ubuntu-latest
+        #     ruby-version: '2.2' # setup-ruby fails to install ruby 2.2 on ubuntu
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
