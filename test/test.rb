@@ -334,6 +334,16 @@ class Swe4rTest < Minitest::Test
            "Ceres' orbital period should be between 4.0-5.0 years, got #{ceres_elements[10]}"
   end
 
+  def test_fixstar
+    mag = Swe4r.swe_fixstar_mag('Aldebaran')
+    assert_equal 0.86, mag
+
+    lon, lat, dist, * = Swe4r.swe_fixstar('Aldebaran', @test_date_jd, 0)
+    assert_equal 69.5276, lon.round(4)
+    assert_equal(-5.4681, lat.round(4))
+    assert_equal 4_214_436.654, dist.round(3)
+  end
+
   def test_fixstar2
     mag = Swe4r.swe_fixstar2_mag('Aldebaran')
     assert_equal 0.86, mag

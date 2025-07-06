@@ -831,6 +831,47 @@ static VALUE t_swe_deltat_ex(VALUE self, VALUE julian_ut, VALUE iflag)
 	return rb_float_new(delta_t);
 }
 
+static VALUE t_swe_fixstar(VALUE self, VALUE star, VALUE julian_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	double results[6];
+
+	if (swe_fixstar(StringValuePtr(star), NUM2DBL(julian_et), NUM2INT(iflag), results, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(output, rb_float_new(results[i]));
+
+	return output;
+}
+
+static VALUE t_swe_fixstar_ut(VALUE self, VALUE star, VALUE julian_ut, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	double results[6];
+
+	if (swe_fixstar_ut(StringValuePtr(star), NUM2DBL(julian_ut), NUM2INT(iflag), results, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(output, rb_float_new(results[i]));
+
+	return output;
+}
+
+static VALUE t_swe_fixstar_mag(VALUE self, VALUE star)
+{
+	char serr[AS_MAXCH];
+	double mag;
+
+	if (swe_fixstar_mag(StringValuePtr(star), &mag, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	return rb_float_new(mag);
+}
+
 static VALUE t_swe_fixstar2(VALUE self, VALUE star, VALUE julian_et, VALUE iflag)
 {
 	char serr[AS_MAXCH];
@@ -909,6 +950,9 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_get_orbital_elements", t_swe_get_orbital_elements, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_deltat", t_swe_deltat, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_deltat_ex", t_swe_deltat_ex, 2);
+	rb_define_module_function(rb_mSwe4r, "swe_fixstar", t_swe_fixstar, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_fixstar_ut", t_swe_fixstar_ut, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_fixstar_mag", t_swe_fixstar_mag, 1);
 	rb_define_module_function(rb_mSwe4r, "swe_fixstar2", t_swe_fixstar2, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_fixstar2_ut", t_swe_fixstar2_ut, 3);
 	rb_define_module_function(rb_mSwe4r, "swe_fixstar2_mag", t_swe_fixstar2_mag, 1);
