@@ -9,8 +9,8 @@ require 'minitest/autorun'
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'swe4r'
 
-# Swe4r.swe_set_ephe_path(ENV.fetch("SE_EPHE_PATH"))
-Swe4r.swe_set_ephe_path( File.expand_path('../ext/swe4r', __dir__))
+ENV['SE_EPHE_PATH'] = File.expand_path('../ext/swe4r', __dir__)
+Swe4r.swe_set_ephe_path(ENV.fetch('SE_EPHE_PATH'))
 
 class Swe4rTest < Minitest::Test
   DELTA = 1e-6 # Tolerance for floating point comparisons
@@ -27,7 +27,7 @@ class Swe4rTest < Minitest::Test
     # Helper method to compare floats with rounding and optional custom tolerance
     assert_in_delta(expected.round(6), actual.round(6), custom_delta, message)
   end
- 
+
   def assert_float_array_equal(expected, actual, message = nil)
     # Helper method to compare arrays of floats
     assert_equal(expected.length, actual.length, "#{message}: Arrays have different lengths")
@@ -230,117 +230,117 @@ class Swe4rTest < Minitest::Test
     # Test for a known date
     result = Swe4r.swe_deltat(@test_date_jd)
     # Delta T for August 1981 is approximately 51.89 seconds according to your implementation
-    assert result.between?(0.0006, 0.00061), "Delta T should be approximately 51-53 seconds (0.0006-0.00061 days) for 1981, got #{result * 86400} seconds"
-    
+    assert result.between?(0.0006, 0.00061),
+           "Delta T should be approximately 51-53 seconds (0.0006-0.00061 days) for 1981, got #{result * 86_400} seconds"
+
     # Test for a more recent date
     recent_date = Swe4r.swe_julday(2020, 1, 1, 0)
     recent_result = Swe4r.swe_deltat(recent_date)
     # Adjust expected range based on your implementation
-    assert recent_result.between?(0.00072, 0.00085), "Delta T should be approximately 65-75 seconds for 2020, got #{recent_result * 86400} seconds"
+    assert recent_result.between?(0.00072, 0.00085),
+           "Delta T should be approximately 65-75 seconds for 2020, got #{recent_result * 86_400} seconds"
   end
-  
+
   def test_swe_get_orbital_elements
     # Convert UT to ET for correct calculation
     jd_et = @test_date_jd + Swe4r.swe_deltat(@test_date_jd)
-    
+
     # Test for Earth
     earth_elements = Swe4r.swe_get_orbital_elements(jd_et, Swe4r::SE_EARTH, Swe4r::SEFLG_SWIEPH)
-    
+
     # According to the documentation, we need to check for 50 values, but our implementation
     # currently returns 17. Let's check what we have.
-    assert earth_elements.length >= 17, "Should return at least 17 orbital elements"
-    
+    assert earth_elements.length >= 17, 'Should return at least 17 orbital elements'
+
     # Print elements with correct descriptions for better understanding
     element_names = [
-      "semi-major axis (AU)", "eccentricity", "inclination (deg)", 
-      "longitude of ascending node (deg)", "argument of periapsis (deg)",
-      "longitude of periapsis (deg)", "mean anomaly at epoch (deg)",
-      "true anomaly at epoch (deg)", "eccentric anomaly at epoch (deg)", 
-      "mean longitude at epoch (deg)", "sidereal orbital period (tropical years)",
-      "mean daily motion (deg/day)", "tropical period (years)", 
-      "synodic period (days)", "time of perihelion passage", 
-      "perihelion distance (AU)", "aphelion distance (AU)"
+      'semi-major axis (AU)', 'eccentricity', 'inclination (deg)',
+      'longitude of ascending node (deg)', 'argument of periapsis (deg)',
+      'longitude of periapsis (deg)', 'mean anomaly at epoch (deg)',
+      'true anomaly at epoch (deg)', 'eccentric anomaly at epoch (deg)',
+      'mean longitude at epoch (deg)', 'sidereal orbital period (tropical years)',
+      'mean daily motion (deg/day)', 'tropical period (years)',
+      'synodic period (days)', 'time of perihelion passage',
+      'perihelion distance (AU)', 'aphelion distance (AU)'
     ]
-    
+
     puts "\nEarth orbital elements:"
     earth_elements.each_with_index do |val, i|
       puts "#{i}: #{element_names[i]} = #{val}" if i < element_names.length
     end
-    
+
     # Basic checks for Earth - focus on values that appear correct
     assert_in_delta 1.0, earth_elements[0], 0.001, "Earth's semi-major axis should be approx 1.0 AU"
     assert_in_delta 0.0167, earth_elements[1], 0.001, "Earth's eccentricity should be approx 0.0167"
     assert_in_delta 0.0, earth_elements[2], 0.01, "Earth's inclination should be close to 0 degrees"
-    
+
     # Check perihelion and aphelion distances
     perihelion_distance = earth_elements[15]
     aphelion_distance = earth_elements[16]
     calculated_perihelion = earth_elements[0] * (1 - earth_elements[1])
     calculated_aphelion = earth_elements[0] * (1 + earth_elements[1])
-    
+
     assert_in_delta calculated_perihelion, perihelion_distance, 0.001,
-                   "Earth's perihelion distance should be a(1-e)"
+                    "Earth's perihelion distance should be a(1-e)"
     assert_in_delta calculated_aphelion, aphelion_distance, 0.001,
-                   "Earth's aphelion distance should be a(1+e)"
-    
+                    "Earth's aphelion distance should be a(1+e)"
+
     # Test for Mars
     mars_elements = Swe4r.swe_get_orbital_elements(jd_et, Swe4r::SE_MARS, Swe4r::SEFLG_SWIEPH)
-    assert mars_elements.length >= 17, "Should return at least 17 orbital elements"
-    
+    assert mars_elements.length >= 17, 'Should return at least 17 orbital elements'
+
     puts "\nMars orbital elements:"
     mars_elements.each_with_index do |val, i|
       puts "#{i}: #{element_names[i]} = #{val}" if i < element_names.length
     end
-    
+
     # Basic checks for Mars
     assert_in_delta 1.524, mars_elements[0], 0.01, "Mars' semi-major axis should be approx 1.524 AU"
     assert_in_delta 0.0935, mars_elements[1], 0.001, "Mars' eccentricity should be approx 0.0935"
     assert_in_delta 1.85, mars_elements[2], 0.01, "Mars' inclination should be approx 1.85 degrees"
-    
+
     # Check perihelion and aphelion distances
     mars_perihelion_distance = mars_elements[15]
     mars_aphelion_distance = mars_elements[16]
     mars_calculated_perihelion = mars_elements[0] * (1 - mars_elements[1])
     mars_calculated_aphelion = mars_elements[0] * (1 + mars_elements[1])
-    
+
     assert_in_delta mars_calculated_perihelion, mars_perihelion_distance, 0.001,
-                   "Mars' perihelion distance should be a(1-e)"
+                    "Mars' perihelion distance should be a(1-e)"
     assert_in_delta mars_calculated_aphelion, mars_aphelion_distance, 0.001,
-                   "Mars' aphelion distance should be a(1+e)"
-    
+                    "Mars' aphelion distance should be a(1+e)"
+
     # Check orbital period
     assert mars_elements[10] > 1.8 && mars_elements[10] < 1.9,
            "Mars' sidereal orbital period should be between 1.8-1.9 years, got #{mars_elements[10]}"
-    
+
     # Test for Ceres
     ceres_elements = Swe4r.swe_get_orbital_elements(jd_et, Swe4r::SE_CERES, Swe4r::SEFLG_SWIEPH)
-    assert ceres_elements.length >= 17, "Should return at least 17 orbital elements"
-    
+    assert ceres_elements.length >= 17, 'Should return at least 17 orbital elements'
+
     puts "\nCeres orbital elements:"
     ceres_elements.each_with_index do |val, i|
       puts "#{i}: #{element_names[i]} = #{val}" if i < element_names.length
     end
-    
+
     # Basic checks for Ceres
-    assert ceres_elements[0] > 2.5 && ceres_elements[0] < 3.0, 
+    assert ceres_elements[0] > 2.5 && ceres_elements[0] < 3.0,
            "Ceres' semi-major axis should be between 2.5-3.0 AU, got #{ceres_elements[0]}"
     assert ceres_elements[1] > 0.05 && ceres_elements[1] < 0.15,
            "Ceres' eccentricity should be between 0.05-0.15, got #{ceres_elements[1]}"
-    
+
     # Check if orbital period is reasonable
     assert ceres_elements[10] > 4.0 && ceres_elements[10] < 5.0,
            "Ceres' orbital period should be between 4.0-5.0 years, got #{ceres_elements[10]}"
-  end  
+  end
 
   def test_fixstar2
-    # Swe4r.swe_set_ephe_path( File.expand_path('../ext/swe4r', __dir__))
-    mag = Swe4r.swe_fixstar2_mag("Aldebaran")
+    mag = Swe4r.swe_fixstar2_mag('Aldebaran')
     assert_equal 0.86, mag
 
-    lon, lat, dist, * = Swe4r.swe_fixstar2("Aldebaran", @test_date_jd, 0)
+    lon, lat, dist, * = Swe4r.swe_fixstar2('Aldebaran', @test_date_jd, 0)
     assert_equal 69.5276, lon.round(4)
-    assert_equal -5.4681, lat.round(4)
-    assert_equal 4214436.654, dist.round(3)
+    assert_equal(-5.4681, lat.round(4))
+    assert_equal 4_214_436.654, dist.round(3)
   end
-  
 end
