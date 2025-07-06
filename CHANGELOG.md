@@ -10,3 +10,9 @@ Added support for fixed stars:
 - swe_fixstar2_ut: Calculate positions of fixed stars for Universal Time (UT)
 - swe_fixstar2: Calculate positions of fixed stars for Ephemeris Time (ET)
 - swe_fixstar2_mag: Function calculates the magnitude of a fixed star
+
+Version 1.1.6 (July 6, 2025)
+Added support for fixed stars legacy method:
+- swe_fixstar_ut: Calculate positions of fixed stars for Universal Time (UT)
+- swe_fixstar: Calculate positions of fixed stars for Ephemeris Time (ET)
+- swe_fixstar_mag: Function calculates the magnitude of a fixed star
