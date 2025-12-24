@@ -20,7 +20,8 @@ Gem::Specification.new do |s|
   s.extensions        = ['ext/swe4r/extconf.rb']
   s.required_ruby_version = '>= 2.6'
 
-  s.add_development_dependency 'minitest', '~> 5.16'
+  # minitest 5.27+ requires Ruby >= 3.2, so constrain for Ruby 2.7 compatibility
+  s.add_development_dependency 'minitest', '>= 5.16', '< 5.27'
   s.add_development_dependency 'minitest-reporters', '~> 1.6'
   s.add_development_dependency 'minitest-rg', '~> 5.3'
   s.add_development_dependency 'victor', '~> 0.3.4'
