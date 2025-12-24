@@ -252,23 +252,6 @@ class Swe4rTest < Minitest::Test
     # currently returns 17. Let's check what we have.
     assert earth_elements.length >= 17, 'Should return at least 17 orbital elements'
 
-    # Print elements with correct descriptions for better understanding
-    element_names = [
-      'semi-major axis (AU)', 'eccentricity', 'inclination (deg)',
-      'longitude of ascending node (deg)', 'argument of periapsis (deg)',
-      'longitude of periapsis (deg)', 'mean anomaly at epoch (deg)',
-      'true anomaly at epoch (deg)', 'eccentric anomaly at epoch (deg)',
-      'mean longitude at epoch (deg)', 'sidereal orbital period (tropical years)',
-      'mean daily motion (deg/day)', 'tropical period (years)',
-      'synodic period (days)', 'time of perihelion passage',
-      'perihelion distance (AU)', 'aphelion distance (AU)'
-    ]
-
-    puts "\nEarth orbital elements:"
-    earth_elements.each_with_index do |val, i|
-      puts "#{i}: #{element_names[i]} = #{val}" if i < element_names.length
-    end
-
     # Basic checks for Earth - focus on values that appear correct
     assert_in_delta 1.0, earth_elements[0], 0.001, "Earth's semi-major axis should be approx 1.0 AU"
     assert_in_delta 0.0167, earth_elements[1], 0.001, "Earth's eccentricity should be approx 0.0167"
@@ -288,11 +271,6 @@ class Swe4rTest < Minitest::Test
     # Test for Mars
     mars_elements = Swe4r.swe_get_orbital_elements(jd_et, Swe4r::SE_MARS, Swe4r::SEFLG_SWIEPH)
     assert mars_elements.length >= 17, 'Should return at least 17 orbital elements'
-
-    puts "\nMars orbital elements:"
-    mars_elements.each_with_index do |val, i|
-      puts "#{i}: #{element_names[i]} = #{val}" if i < element_names.length
-    end
 
     # Basic checks for Mars
     assert_in_delta 1.524, mars_elements[0], 0.01, "Mars' semi-major axis should be approx 1.524 AU"
@@ -317,11 +295,6 @@ class Swe4rTest < Minitest::Test
     # Test for Ceres
     ceres_elements = Swe4r.swe_get_orbital_elements(jd_et, Swe4r::SE_CERES, Swe4r::SEFLG_SWIEPH)
     assert ceres_elements.length >= 17, 'Should return at least 17 orbital elements'
-
-    puts "\nCeres orbital elements:"
-    ceres_elements.each_with_index do |val, i|
-      puts "#{i}: #{element_names[i]} = #{val}" if i < element_names.length
-    end
 
     # Basic checks for Ceres
     assert ceres_elements[0] > 2.5 && ceres_elements[0] < 3.0,
@@ -352,5 +325,149 @@ class Swe4rTest < Minitest::Test
     assert_equal 69.5276, lon.round(4)
     assert_equal(-5.4681, lat.round(4))
     assert_equal 4_214_436.654, dist.round(3)
+  end
+
+  # Tests for new utility functions
+
+  def test_swe_close
+    assert_nil Swe4r.swe_close
+    # Re-set the path for other tests
+    Swe4r.swe_set_ephe_path(ENV.fetch('SE_EPHE_PATH'))
+  end
+
+  def test_swe_version
+    version = Swe4r.swe_version
+    assert_kind_of String, version
+    assert_match(/\d+\.\d+/, version) # Should be something like "2.10.03"
+  end
+
+  def test_swe_get_planet_name
+    assert_equal 'Sun', Swe4r.swe_get_planet_name(Swe4r::SE_SUN)
+    assert_equal 'Moon', Swe4r.swe_get_planet_name(Swe4r::SE_MOON)
+    assert_equal 'Mars', Swe4r.swe_get_planet_name(Swe4r::SE_MARS)
+    assert_equal 'Chiron', Swe4r.swe_get_planet_name(Swe4r::SE_CHIRON)
+  end
+
+  def test_swe_get_ayanamsa_name
+    assert_equal 'Fagan/Bradley', Swe4r.swe_get_ayanamsa_name(Swe4r::SE_SIDM_FAGAN_BRADLEY)
+    assert_equal 'Lahiri', Swe4r.swe_get_ayanamsa_name(Swe4r::SE_SIDM_LAHIRI)
+  end
+
+  # Tests for new date/time functions
+
+  def test_swe_utc_to_jd
+    result = Swe4r.swe_utc_to_jd(1981, 8, 22, 11, 21, 0.0)
+    assert_kind_of Array, result
+    assert_equal 2, result.length
+    # First is JD ET, second is JD UT
+    assert_in_delta @test_date_jd, result[1], 0.001
+  end
+
+  def test_swe_jdut1_to_utc
+    result = Swe4r.swe_jdut1_to_utc(@test_date_jd)
+    assert_equal 1981, result[0]
+    assert_equal 8, result[1]
+    assert_equal 22, result[2]
+    assert_equal 11, result[3]
+  end
+
+  def test_swe_day_of_week
+    # Aug 22, 1981 was a Saturday (day 5, since 0=Monday)
+    result = Swe4r.swe_day_of_week(@test_date_jd)
+    assert_equal 5, result
+  end
+
+  # Tests for math functions
+
+  def test_swe_degnorm
+    assert_float_equal 30.0, Swe4r.swe_degnorm(30.0)
+    assert_float_equal 30.0, Swe4r.swe_degnorm(390.0)
+    assert_float_equal 330.0, Swe4r.swe_degnorm(-30.0)
+  end
+
+  def test_swe_radnorm
+    assert_float_equal Math::PI, Swe4r.swe_radnorm(Math::PI)
+    # 3*PI should normalize to PI
+    assert_float_equal Math::PI, Swe4r.swe_radnorm(3 * Math::PI)
+  end
+
+  def test_swe_split_deg
+    # Test splitting 123.456 degrees
+    deg, min, sec, _secfr, sign = Swe4r.swe_split_deg(123.456, 0)
+    assert_equal 123, deg
+    assert_equal 27, min
+    assert_equal 21, sec
+    assert_equal 1, sign # positive
+  end
+
+  # Tests for house functions
+
+  def test_swe_houses_ex
+    result = Swe4r.swe_houses_ex(@test_date_jd, 0, @test_lat, @test_lon, 'P')
+    assert_kind_of Array, result
+    assert_equal 2, result.length
+    assert_equal 13, result[0].length # cusps
+    assert_equal 10, result[1].length # ascmc
+  end
+
+  def test_swe_houses_armc
+    armc = 9.5 * 15 # ARMC in degrees (sidereal time * 15)
+    eps = 23.4 # obliquity
+    result = Swe4r.swe_houses_armc(armc, @test_lat, eps, 'P')
+    assert_kind_of Array, result
+    assert_equal 2, result.length
+  end
+
+  # Tests for coordinate functions
+
+  def test_swe_sidtime0
+    # Test with explicit obliquity and nutation
+    result = Swe4r.swe_sidtime0(@test_date_jd, 23.44, 0.0)
+    assert_kind_of Float, result
+  end
+
+  def test_swe_cotrans_sp
+    # Transform ecliptic to equatorial with speeds
+    result = Swe4r.swe_cotrans_sp(23.44, 100.0, 5.0, 1.0, 1.0, 0.0, 0.0)
+    assert_kind_of Array, result
+    assert_equal 6, result.length
+  end
+
+  # Tests for eclipse functions
+
+  def test_swe_sol_eclipse_when_glob
+    # Find next solar eclipse after our test date
+    result = Swe4r.swe_sol_eclipse_when_glob(@test_date_jd, Swe4r::SEFLG_MOSEPH, 0, 0)
+    assert_kind_of Array, result
+    # First element is eclipse type, rest are times
+    assert result[0] > 0, "Should find an eclipse"
+    assert result[1] > @test_date_jd, "Eclipse time should be after start date"
+  end
+
+  def test_swe_lun_eclipse_when
+    # Find next lunar eclipse after our test date
+    result = Swe4r.swe_lun_eclipse_when(@test_date_jd, Swe4r::SEFLG_MOSEPH, 0, 0)
+    assert_kind_of Array, result
+    assert result[0] > 0, "Should find an eclipse"
+    assert result[1] > @test_date_jd, "Eclipse time should be after start date"
+  end
+
+  # Test phenomena
+
+  def test_swe_pheno_ut
+    result = Swe4r.swe_pheno_ut(@test_date_jd, Swe4r::SE_MARS, Swe4r::SEFLG_MOSEPH)
+    assert_kind_of Array, result
+    assert_equal 7, result.length
+    # Phase angle should be positive
+    assert result[0] >= 0
+  end
+
+  # Test time equation
+
+  def test_swe_time_equ
+    result = Swe4r.swe_time_equ(@test_date_jd)
+    assert_kind_of Float, result
+    # Equation of time should be small (less than ~20 minutes in days)
+    assert result.abs < 0.015
   end
 end
