@@ -18,6 +18,38 @@ Or add to your Gemfile:
 gem 'swe4r'
 ```
 
+### Build Requirements
+
+This gem requires **CMake 3.14 or later** to build from source. CMake is used to automatically download the Swiss Ephemeris library (v2.10.3a) from GitHub during installation.
+
+**Installing CMake:**
+
+- **macOS:** `brew install cmake`
+- **Ubuntu/Debian:** `sudo apt-get install cmake`
+- **Windows:** Download from [cmake.org/download](https://cmake.org/download/)
+- **Other platforms:** See [CMake installation guide](https://cmake.org/install/)
+
+The gem will automatically fetch Swiss Ephemeris sources from the [official GitHub repository](https://github.com/aloistr/swisseph) during installation. No manual download is required.
+
+### Building from Source
+
+If you're building the gem from source or developing locally:
+
+```bash
+# Install CMake (if not already installed)
+brew install cmake  # macOS
+# or
+sudo apt-get install cmake  # Ubuntu/Debian
+
+# Build and install
+rake install
+```
+
+The build process will:
+1. Fetch Swiss Ephemeris sources from GitHub using CMake
+2. Compile the native extension with mkmf
+3. Install the gem locally
+
 ## Features
 
 - High-precision planetary positions (Sun, Moon, planets, asteroids)
@@ -234,7 +266,11 @@ Swe4r::SE_SIDM_LAHIRI, SE_SIDM_FAGAN_BRADLEY, SE_SIDM_RAMAN, etc.
 
 ## Ephemeris Files
 
-The Moshier ephemeris (`SEFLG_MOSEPH`) is built-in and requires no additional files. For higher precision, download Swiss Ephemeris files from [astro.com](https://www.astro.com/ftp/swisseph/ephe/) and set the path:
+The Moshier ephemeris (`SEFLG_MOSEPH`) is built-in and requires no additional files.
+
+For higher precision calculations, the Swiss Ephemeris data files are **automatically included** during gem installation. A minimal set of ephemeris files (planetary positions for current eras) is downloaded from the upstream repository.
+
+For additional ephemeris data (extended time ranges, asteroids, etc.), you can download files from [astro.com](https://www.astro.com/ftp/swisseph/ephe/) and configure the path:
 
 ```ruby
 Swe4r.swe_set_ephe_path('/path/to/ephemeris/files')

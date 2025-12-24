@@ -6,3 +6,54 @@
 .DS_Store
 ext/swe4r/swe4r.bundle.dSYM
 .aider*
+
+# CMake build artifacts
+ext/swe4r/cmake_build/
+ext/swe4r/CMakeFiles/
+ext/swe4r/CMakeCache.txt
+ext/swe4r/cmake_install.cmake
+ext/swe4r/Makefile
+ext/swe4r/.swisseph_fetched
+
+# Fetched Swiss Ephemeris sources (now downloaded at build time)
+ext/swe4r/swisseph_src/
+ext/swe4r/_deps/
+
+# Swiss Ephemeris C sources (fetched by CMake)
+ext/swe4r/swecl.c
+ext/swe4r/swedate.c
+ext/swe4r/sweephe4.c
+ext/swe4r/swehel.c
+ext/swe4r/swehouse.c
+ext/swe4r/swejpl.c
+ext/swe4r/swemmoon.c
+ext/swe4r/swemplan.c
+ext/swe4r/sweph.c
+ext/swe4r/swephlib.c
+ext/swe4r/swephgen4.c
+ext/swe4r/swemini.c
+
+# Swiss Ephemeris headers (fetched by CMake)
+ext/swe4r/swedate.h
+ext/swe4r/swedll.h
+ext/swe4r/sweephe4.h
+ext/swe4r/swehouse.h
+ext/swe4r/swejpl.h
+ext/swe4r/swemptab.h
+ext/swe4r/swenut2000a.h
+ext/swe4r/sweodef.h
+ext/swe4r/sweph.h
+ext/swe4r/swephexp.h
+ext/swe4r/swephlib.h
+ext/swe4r/swevents.h
+
+# Swiss Ephemeris data files (fetched by CMake)
+ext/swe4r/seas_18.se1
+ext/swe4r/seasm18.se1
+ext/swe4r/semo_18.se1
+ext/swe4r/semom18.se1
+ext/swe4r/sepl_18.se1
+ext/swe4r/seplm18.se1
+ext/swe4r/sefstars.txt
+ext/swe4r/seleapsec.txt
+ext/swe4r/agpl-3.0.txt
