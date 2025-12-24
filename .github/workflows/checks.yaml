@@ -58,4 +58,4 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
       - run: rake install
-      - run: gem install minitest && rake test
+      - run: rake test
