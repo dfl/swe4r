@@ -5,7 +5,19 @@ Rake::TestTask.new do |t|
 end
 
 desc 'Run tests'
-task default: %i[install test]
+task default: %i[install setup_test_files test]
+
+desc 'Fetch Swiss Ephemeris files for testing'
+task :setup_test_files do
+  Dir.chdir('ext/swe4r') do
+    unless File.exist?('.swisseph_fetched') && File.exist?('sweph.c')
+      puts 'Fetching Swiss Ephemeris sources for testing...'
+      system('cmake -S . -B cmake_build') or abort 'CMake configure failed'
+      system('cmake --build cmake_build') or abort 'CMake build failed'
+      system('rm -rf cmake_build')
+    end
+  end
+end
 
 desc 'build and install locally'
 task :install do
