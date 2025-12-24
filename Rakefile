@@ -1,12 +1,5 @@
 require 'rake/testtask'
 
-Rake::TestTask.new do |t|
-  t.libs << 'test'
-end
-
-desc 'Run tests'
-task default: %i[install setup_test_files test]
-
 desc 'Fetch Swiss Ephemeris files for testing'
 task :setup_test_files do
   Dir.chdir('ext/swe4r') do
@@ -18,6 +11,16 @@ task :setup_test_files do
     end
   end
 end
+
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+end
+
+# Make test task depend on setup_test_files
+task test: :setup_test_files
+
+desc 'Run tests'
+task default: %i[install test]
 
 desc 'build and install locally'
 task :install do
