@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
-gem 'minitest'
-# require 'minitest'
-require 'minitest/autorun'
-# require 'minitest/reporters'
-# require 'minitest/rg'
-
-$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-require 'swe4r'
-
-ENV['SE_EPHE_PATH'] = File.expand_path('../ext/swe4r', __dir__)
-Swe4r.swe_set_ephe_path(ENV.fetch('SE_EPHE_PATH'))
+require_relative 'test_helper'
 
 class Swe4rTest < Minitest::Test
   DELTA = 1e-6 # Tolerance for floating point comparisons
