@@ -258,6 +258,25 @@ static VALUE t_swe_calc_ut(VALUE self, VALUE julian_ut, VALUE body, VALUE iflag)
 	return output;
 }
 
+/*
+ * Calculation of planets, moon, asteroids, etc. (ET/TT version)
+ * int32 swe_calc(double tjd_et, int ipl, int32 iflag, double *xx, char *serr);
+ */
+static VALUE t_swe_calc(VALUE self, VALUE julian_et, VALUE body, VALUE iflag)
+{
+	double results[6];
+	char serr[AS_MAXCH];
+
+	if (swe_calc(NUM2DBL(julian_et), NUM2INT(body), NUM2LONG(iflag), results, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(output, rb_float_new(results[i]));
+
+	return output;
+}
+
 static VALUE t_swe_sidtime(VALUE self, VALUE julian_ut)
 {
 	double sidtime = swe_sidtime(NUM2DBL(julian_ut));
@@ -343,6 +362,16 @@ static VALUE t_swe_get_ayanamsa_ut(VALUE self, VALUE julian_ut)
 	return rb_float_new(ayanamsa);
 }
 
+/*
+ * Ayanamsa (ET/TT version)
+ * double swe_get_ayanamsa(double tjd_et);
+ */
+static VALUE t_swe_get_ayanamsa(VALUE self, VALUE julian_et)
+{
+	double ayanamsa = swe_get_ayanamsa(NUM2DBL(julian_et));
+	return rb_float_new(ayanamsa);
+}
+
 // * This function computes the ayanamsha using a Delta T consistent with the ephe_flag specified.
 // * https://www.astro.com/swisseph/swephprg.htm#_Toc112949018
 // * input variables:
@@ -360,11 +389,22 @@ static VALUE t_swe_get_ayanamsa_ex_ut(VALUE self, VALUE julian_ut, VALUE flag)
 	double ayanamsha;
 	char serr[AS_MAXCH];
 
-	// if(TYPE(flag) == T_NIL) { // default to Moshier Ephemeris
-	// 	flag = SEFLG_MOSEPH;
-	// }
-
 	if (swe_get_ayanamsa_ex_ut(NUM2DBL(julian_ut), NUM2INT(flag), &ayanamsha, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	return rb_float_new(ayanamsha);
+}
+
+/*
+ * Ayanamsa with explicit ephemeris (ET/TT version)
+ * int32 swe_get_ayanamsa_ex(double tjd_et, int32 iflag, double *daya, char *serr);
+ */
+static VALUE t_swe_get_ayanamsa_ex(VALUE self, VALUE julian_et, VALUE flag)
+{
+	double ayanamsha;
+	char serr[AS_MAXCH];
+
+	if (swe_get_ayanamsa_ex(NUM2DBL(julian_et), NUM2INT(flag), &ayanamsha, serr) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	return rb_float_new(ayanamsha);
@@ -856,10 +896,12 @@ static VALUE t_swe_house_pos(VALUE self, VALUE armc, VALUE geolat, VALUE eps, VA
 static VALUE t_swe_solcross_ut(VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
 {
 	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double tjd = NUM2DBL(tjd_ut);
 
-	double retval = swe_solcross_ut(NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), serr);
-	if (retval < tjd_ut)
-		rb_raise(rb_eRuntimeError, serr);
+	double retval = swe_solcross_ut(NUM2DBL(x2cross), tjd, NUM2INT(iflag), serr);
+	if (retval < tjd)
+		rb_raise(rb_eRuntimeError, "%s", serr);
 	return rb_float_new(retval);
 }
 
@@ -870,10 +912,12 @@ static VALUE t_swe_solcross_ut(VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE if
 static VALUE t_swe_mooncross_ut(VALUE self, VALUE x2cross, VALUE tjd_ut, VALUE iflag)
 {
 	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double tjd = NUM2DBL(tjd_ut);
 
-	double retval = swe_mooncross_ut(NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), serr);
-	if (retval < tjd_ut)
-		rb_raise(rb_eRuntimeError, serr);
+	double retval = swe_mooncross_ut(NUM2DBL(x2cross), tjd, NUM2INT(iflag), serr);
+	if (retval < tjd)
+		rb_raise(rb_eRuntimeError, "%s", serr);
 	return rb_float_new(retval);
 }
 
@@ -888,10 +932,12 @@ double swe_mooncross_node_ut(
 static VALUE t_swe_mooncross_node_ut(VALUE self, VALUE tjd_ut, VALUE iflag)
 {
 	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double tjd = NUM2DBL(tjd_ut);
 	double xlon, xlat;
-	double retval = swe_mooncross_node_ut(NUM2DBL(tjd_ut), NUM2INT(iflag), &xlon, &xlat, serr);
-	if (retval < tjd_ut)
-		rb_raise(rb_eRuntimeError, serr);
+	double retval = swe_mooncross_node_ut(tjd, NUM2INT(iflag), &xlon, &xlat, serr);
+	if (retval < tjd)
+		rb_raise(rb_eRuntimeError, "%s", serr);
 	VALUE output = rb_ary_new();
 	rb_ary_push(output, rb_float_new(retval));
 	rb_ary_push(output, rb_float_new(xlon));
@@ -906,19 +952,84 @@ static VALUE t_swe_mooncross_node_ut(VALUE self, VALUE tjd_ut, VALUE iflag)
 static VALUE t_swe_helio_cross_ut(VALUE self, VALUE body, VALUE x2cross, VALUE tjd_ut, VALUE iflag, VALUE dir)
 {
 	char serr[AS_MAXCH];
+	serr[0] = '\0';
 	double jx;
-	double retval = swe_helio_cross_ut(NUM2INT(body), NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), NUM2INT(dir), &jx, serr);
-	if (retval < tjd_ut)
-		rb_raise(rb_eRuntimeError, serr);
+	int32 retval = swe_helio_cross_ut(NUM2INT(body), NUM2DBL(x2cross), NUM2DBL(tjd_ut), NUM2INT(iflag), NUM2INT(dir), &jx, serr);
+	if (retval < 0)
+		rb_raise(rb_eRuntimeError, "%s", serr);
+	return rb_float_new(jx);
+}
+
+/*
+ * Find the crossing of the Sun over a given ecliptic position (ET version)
+ * double swe_solcross(double x2cross, double jd_et, int32 flag, char *serr);
+ */
+static VALUE t_swe_solcross(VALUE self, VALUE x2cross, VALUE tjd_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double tjd = NUM2DBL(tjd_et);
+
+	double retval = swe_solcross(NUM2DBL(x2cross), tjd, NUM2INT(iflag), serr);
+	if (retval < tjd)
+		rb_raise(rb_eRuntimeError, "%s", serr);
+	return rb_float_new(retval);
+}
+
+/*
+ * Find the crossing of the Moon over a given ecliptic position (ET version)
+ * double swe_mooncross(double x2cross, double jd_et, int32 flag, char *serr);
+ */
+static VALUE t_swe_mooncross(VALUE self, VALUE x2cross, VALUE tjd_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double tjd = NUM2DBL(tjd_et);
+
+	double retval = swe_mooncross(NUM2DBL(x2cross), tjd, NUM2INT(iflag), serr);
+	if (retval < tjd)
+		rb_raise(rb_eRuntimeError, "%s", serr);
+	return rb_float_new(retval);
+}
+
+/*
+ * Find moon crossing of node (ET version)
+ * double swe_mooncross_node(double jd_et, int32 flag, double *xlon, double *xlat, char *serr);
+ */
+static VALUE t_swe_mooncross_node(VALUE self, VALUE tjd_et, VALUE iflag)
+{
+	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double tjd = NUM2DBL(tjd_et);
+	double xlon, xlat;
+	double retval = swe_mooncross_node(tjd, NUM2INT(iflag), &xlon, &xlat, serr);
+	if (retval < tjd)
+		rb_raise(rb_eRuntimeError, "%s", serr);
 	VALUE output = rb_ary_new();
 	rb_ary_push(output, rb_float_new(retval));
-	rb_ary_push(output, rb_float_new(jx));
+	rb_ary_push(output, rb_float_new(xlon));
+	rb_ary_push(output, rb_float_new(xlat));
 
 	return output;
 }
 
 /*
- * Compute planetary nodes and apsides (perihelia, aphelia)
+ * Find heliocentric crossing of a planet (ET version)
+ * int32 swe_helio_cross(int32 ipl, double x2cross, double jd_et, int32 iflag, int32 dir, double *jd_cross, char *serr);
+ */
+static VALUE t_swe_helio_cross(VALUE self, VALUE body, VALUE x2cross, VALUE tjd_et, VALUE iflag, VALUE dir)
+{
+	char serr[AS_MAXCH];
+	serr[0] = '\0';
+	double jx;
+	int32 retval = swe_helio_cross(NUM2INT(body), NUM2DBL(x2cross), NUM2DBL(tjd_et), NUM2INT(iflag), NUM2INT(dir), &jx, serr);
+	if (retval < 0)
+		rb_raise(rb_eRuntimeError, "%s", serr);
+	return rb_float_new(jx);
+}
+
+/*
+ * Compute planetary nodes and apsides (perihelia, aphelia) - UT version
  * Returns [ascending_node, descending_node, perihelion, aphelion] each with 6 values
  */
 static VALUE t_swe_nod_aps_ut(VALUE self, VALUE julian_ut, VALUE body, VALUE iflag, VALUE method)
@@ -929,7 +1040,47 @@ static VALUE t_swe_nod_aps_ut(VALUE self, VALUE julian_ut, VALUE body, VALUE ifl
 	double xperi[6];
 	double xaphe[6];
 
-	if (swe_nod_aps(NUM2DBL(julian_ut), NUM2INT(body), NUM2INT(iflag), NUM2INT(method), xnasc, xndsc, xperi, xaphe, serr) < 0)
+	if (swe_nod_aps_ut(NUM2DBL(julian_ut), NUM2INT(body), NUM2INT(iflag), NUM2INT(method), xnasc, xndsc, xperi, xaphe, serr) < 0)
+		rb_raise(rb_eRuntimeError, serr);
+
+	VALUE output = rb_ary_new();
+
+	VALUE ascending = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(ascending, rb_float_new(xnasc[i]));
+	rb_ary_push(output, ascending);
+
+	VALUE descending = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(descending, rb_float_new(xndsc[i]));
+	rb_ary_push(output, descending);
+
+	VALUE perihelion = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(perihelion, rb_float_new(xperi[i]));
+	rb_ary_push(output, perihelion);
+
+	VALUE aphelion = rb_ary_new();
+	for (int i = 0; i < 6; i++)
+		rb_ary_push(aphelion, rb_float_new(xaphe[i]));
+	rb_ary_push(output, aphelion);
+
+	return output; // return array of arrays
+}
+
+/*
+ * Compute planetary nodes and apsides (perihelia, aphelia) - ET version
+ * int32 swe_nod_aps(double tjd_et, int32 ipl, int32 iflag, int32 method, ...);
+ */
+static VALUE t_swe_nod_aps(VALUE self, VALUE julian_et, VALUE body, VALUE iflag, VALUE method)
+{
+	char serr[AS_MAXCH];
+	double xnasc[6];
+	double xndsc[6];
+	double xperi[6];
+	double xaphe[6];
+
+	if (swe_nod_aps(NUM2DBL(julian_et), NUM2INT(body), NUM2INT(iflag), NUM2INT(method), xnasc, xndsc, xperi, xaphe, serr) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	VALUE output = rb_ary_new();
@@ -1570,6 +1721,16 @@ void Init_swe4r()
 	rb_define_module_function(rb_mSwe4r, "swe_gauquelin_sector", t_swe_gauquelin_sector, 9);
 	rb_define_module_function(rb_mSwe4r, "swe_heliacal_ut", t_swe_heliacal_ut, -1);
 	rb_define_module_function(rb_mSwe4r, "swe_vis_limit_mag", t_swe_vis_limit_mag, -1);
+
+	// ET (Ephemeris Time) versions
+	rb_define_module_function(rb_mSwe4r, "swe_calc", t_swe_calc, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_get_ayanamsa", t_swe_get_ayanamsa, 1);
+	rb_define_module_function(rb_mSwe4r, "swe_get_ayanamsa_ex", t_swe_get_ayanamsa_ex, 2);
+	rb_define_module_function(rb_mSwe4r, "swe_solcross", t_swe_solcross, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_mooncross", t_swe_mooncross, 3);
+	rb_define_module_function(rb_mSwe4r, "swe_mooncross_node", t_swe_mooncross_node, 2);
+	rb_define_module_function(rb_mSwe4r, "swe_helio_cross", t_swe_helio_cross, 5);
+	rb_define_module_function(rb_mSwe4r, "swe_nod_aps", t_swe_nod_aps, 4);
 
 	// Constants
 

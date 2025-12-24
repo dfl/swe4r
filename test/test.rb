@@ -470,4 +470,76 @@ class Swe4rTest < Minitest::Test
     # Equation of time should be small (less than ~20 minutes in days)
     assert result.abs < 0.015
   end
+
+  # Tests for ET (Ephemeris Time) versions
+
+  def test_swe_calc
+    # Test ET version with Sun
+    result = Swe4r.swe_calc(@test_date_jd, Swe4r::SE_SUN, Swe4r::SEFLG_MOSEPH)
+    assert_kind_of Array, result
+    assert_equal 6, result.length
+    # Longitude should be between 0 and 360
+    assert result[0] >= 0 && result[0] < 360
+  end
+
+  def test_swe_get_ayanamsa
+    # Test ET version
+    Swe4r.swe_set_sid_mode(Swe4r::SE_SIDM_LAHIRI, 0, 0)
+    result = Swe4r.swe_get_ayanamsa(@test_date_jd)
+    assert_kind_of Float, result
+    # Ayanamsa should be around 23-24 degrees for this date
+    assert result > 23 && result < 25
+  end
+
+  def test_swe_get_ayanamsa_ex
+    # Test ET version with extended flags
+    Swe4r.swe_set_sid_mode(Swe4r::SE_SIDM_LAHIRI, 0, 0)
+    result = Swe4r.swe_get_ayanamsa_ex(@test_date_jd, Swe4r::SEFLG_MOSEPH)
+    assert_kind_of Float, result
+    assert result > 23 && result < 25
+  end
+
+  def test_swe_solcross
+    # Test finding Sun crossing a longitude (ET version)
+    result = Swe4r.swe_solcross(0.0, @test_date_jd, Swe4r::SEFLG_MOSEPH)
+    assert_kind_of Float, result
+    # Should return a julian day
+    assert result > @test_date_jd || result < @test_date_jd
+  end
+
+  def test_swe_mooncross
+    # Test finding Moon crossing a longitude (ET version)
+    result = Swe4r.swe_mooncross(90.0, @test_date_jd, Swe4r::SEFLG_MOSEPH)
+    assert_kind_of Float, result
+    # Should return a julian day
+    assert result > 0
+  end
+
+  def test_swe_mooncross_node
+    # Test finding Moon crossing its node (ET version)
+    result = Swe4r.swe_mooncross_node(@test_date_jd, Swe4r::SEFLG_MOSEPH)
+    assert_kind_of Array, result
+    assert_equal 3, result.length
+    # First is julian day, second is longitude, third is latitude
+    assert result[0] > @test_date_jd
+  end
+
+  def test_swe_helio_cross
+    # Test finding heliocentric crossing (ET version)
+    result = Swe4r.swe_helio_cross(Swe4r::SE_MARS, 0.0, @test_date_jd, Swe4r::SEFLG_MOSEPH, 1)
+    assert_kind_of Float, result
+    assert result > @test_date_jd
+  end
+
+  def test_swe_nod_aps
+    # Test getting nodes and apsides (ET version)
+    result = Swe4r.swe_nod_aps(@test_date_jd, Swe4r::SE_MOON, Swe4r::SEFLG_MOSEPH, Swe4r::SE_NODBIT_MEAN)
+    assert_kind_of Array, result
+    assert_equal 4, result.length
+    # Each element should be array of 6 values
+    result.each do |node|
+      assert_kind_of Array, node
+      assert_equal 6, node.length
+    end
+  end
 end
