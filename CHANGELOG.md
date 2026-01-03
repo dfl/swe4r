@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-01-03
+
+### Fixed
+- Fixed buffer overflow crash (SIGABRT) when using Gauquelin sectors house system ('G')
+- Increased cusps buffer from 13 to 37 to accommodate Gauquelin's 36 sectors
+
 ## [1.2.0] - 2025-12-24
 
 ### Added
