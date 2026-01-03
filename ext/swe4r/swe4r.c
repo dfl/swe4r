@@ -441,15 +441,17 @@ static VALUE t_swe_get_ayanamsa_ex(VALUE self, VALUE julian_et, VALUE flag)
 
 static VALUE t_swe_houses(VALUE self, VALUE julian_day, VALUE latitude, VALUE longitude, VALUE house_system)
 {
-	double cusps[13];
+	double cusps[37];  // 37 for Gauquelin sectors, 13 for others
 	double ascmc[10];
 	char serr[AS_MAXCH];
+	char hsys = NUM2CHR(house_system);
+	int num_cusps = (hsys == 'G') ? 37 : 13;
 
-	if (swe_houses(NUM2DBL(julian_day), NUM2DBL(latitude), NUM2DBL(longitude), NUM2CHR(house_system), cusps, ascmc) < 0)
+	if (swe_houses(NUM2DBL(julian_day), NUM2DBL(latitude), NUM2DBL(longitude), hsys, cusps, ascmc) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	VALUE _cusps = rb_ary_new();
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < num_cusps; i++)
 		rb_ary_push(_cusps, rb_float_new(cusps[i]));
 
 	VALUE _ascmc = rb_ary_new();
@@ -468,15 +470,17 @@ static VALUE t_swe_houses(VALUE self, VALUE julian_day, VALUE latitude, VALUE lo
  */
 static VALUE t_swe_houses_ex(VALUE self, VALUE julian_day, VALUE iflag, VALUE latitude, VALUE longitude, VALUE house_system)
 {
-	double cusps[13];
+	double cusps[37];  // 37 for Gauquelin sectors, 13 for others
 	double ascmc[10];
 	char serr[AS_MAXCH];
+	char hsys = NUM2CHR(house_system);
+	int num_cusps = (hsys == 'G') ? 37 : 13;
 
-	if (swe_houses_ex(NUM2DBL(julian_day), NUM2INT(iflag), NUM2DBL(latitude), NUM2DBL(longitude), NUM2CHR(house_system), cusps, ascmc) < 0)
+	if (swe_houses_ex(NUM2DBL(julian_day), NUM2INT(iflag), NUM2DBL(latitude), NUM2DBL(longitude), hsys, cusps, ascmc) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	VALUE _cusps = rb_ary_new();
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < num_cusps; i++)
 		rb_ary_push(_cusps, rb_float_new(cusps[i]));
 
 	VALUE _ascmc = rb_ary_new();
@@ -495,15 +499,17 @@ static VALUE t_swe_houses_ex(VALUE self, VALUE julian_day, VALUE iflag, VALUE la
  */
 static VALUE t_swe_houses_armc(VALUE self, VALUE armc, VALUE latitude, VALUE eps, VALUE house_system)
 {
-	double cusps[13];
+	double cusps[37];  // 37 for Gauquelin sectors, 13 for others
 	double ascmc[10];
 	char serr[AS_MAXCH];
+	char hsys = NUM2CHR(house_system);
+	int num_cusps = (hsys == 'G') ? 37 : 13;
 
-	if (swe_houses_armc(NUM2DBL(armc), NUM2DBL(latitude), NUM2DBL(eps), NUM2CHR(house_system), cusps, ascmc) < 0)
+	if (swe_houses_armc(NUM2DBL(armc), NUM2DBL(latitude), NUM2DBL(eps), hsys, cusps, ascmc) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	VALUE _cusps = rb_ary_new();
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < num_cusps; i++)
 		rb_ary_push(_cusps, rb_float_new(cusps[i]));
 
 	VALUE _ascmc = rb_ary_new();
@@ -536,17 +542,19 @@ static VALUE t_swe_houses_armc(VALUE self, VALUE armc, VALUE latitude, VALUE eps
 
 static VALUE t_swe_houses_ex2(VALUE self, VALUE julian_day, VALUE flag, VALUE latitude, VALUE longitude, VALUE house_system)
 {
-	double cusps[13];
+	double cusps[37];        // 37 for Gauquelin sectors, 13 for others
 	double ascmc[10];
-	double cusps_speed[13];
+	double cusps_speed[37];  // 37 for Gauquelin sectors, 13 for others
 	double ascmc_speed[10];
 	char serr[AS_MAXCH];
+	char hsys = NUM2CHR(house_system);
+	int num_cusps = (hsys == 'G') ? 37 : 13;
 
-	if (swe_houses_ex2(NUM2DBL(julian_day), NUM2INT(flag), NUM2DBL(latitude), NUM2DBL(longitude), NUM2CHR(house_system), cusps, ascmc, cusps_speed, ascmc_speed, serr) < 0)
+	if (swe_houses_ex2(NUM2DBL(julian_day), NUM2INT(flag), NUM2DBL(latitude), NUM2DBL(longitude), hsys, cusps, ascmc, cusps_speed, ascmc_speed, serr) < 0)
 		rb_raise(rb_eRuntimeError, serr);
 
 	VALUE _cusps = rb_ary_new();
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < num_cusps; i++)
 		rb_ary_push(_cusps, rb_float_new(cusps[i]));
 
 	VALUE _ascmc = rb_ary_new();
@@ -554,7 +562,7 @@ static VALUE t_swe_houses_ex2(VALUE self, VALUE julian_day, VALUE flag, VALUE la
 		rb_ary_push(_ascmc, rb_float_new(ascmc[i]));
 
 	VALUE _cusps_speed = rb_ary_new();
-	for (int i = 0; i < 13; i++)
+	for (int i = 0; i < num_cusps; i++)
 		rb_ary_push(_cusps_speed, rb_float_new(cusps_speed[i]));
 
 	VALUE _ascmc_speed = rb_ary_new();
